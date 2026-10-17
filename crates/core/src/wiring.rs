@@ -203,8 +203,12 @@ pub fn accounts_from(
         }
     }
     if let Some(p) = &f.plan {
+        // a plan name never overrides a mode that said "key" (an API organization has an
+        // organizationType too)
         if let Some(v) = str_at(&file.tree, p) {
-            a.credit = Credit::Subscription { plan: Some(v) };
+            if !matches!(a.credit, Credit::ApiKey) {
+                a.credit = Credit::Subscription { plan: Some(v) };
+            }
         }
     }
     if let Some(e) = &f.email {

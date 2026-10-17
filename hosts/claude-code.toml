@@ -40,14 +40,15 @@ format = "json"
 kind = "settings"
 provider = "anthropic"
 path.any = "~/.claude.json"
-fields = { email = "oauthAccount.emailAddress", organization = "oauthAccount.organizationName", mode = "oauthAccount.billingType", mode_subscription = ["stripe_subscription", "subscription"], mode_api_key = ["api", "prepaid", "invoice"] }
+fields = { plan = "oauthAccount.organizationType", email = "oauthAccount.emailAddress", organization = "oauthAccount.organizationName", mode = "oauthAccount.billingType", mode_subscription = ["stripe_subscription", "subscription"], mode_api_key = ["api", "prepaid", "invoice"] }
 keys_in = ["mcpServers.*.env", "mcpServers.*.headers"]
-note = "oauthAccount keys are observed, not documented. MCP server definitions here may carry keys in their env blocks; `${VAR}` references are expanded by the host."
+note = "oauthAccount keys are observed, not documented: organizationType is the plan as the host writes it (`claude_max`…), organizationRateLimitTier its tier (`default_claude_max_20x`), billingType the credit (`stripe_subscription` | `api`…). When `.credentials.json` has no `claudeAiOauth` block (the token lives elsewhere), this is the only place the plan is read. MCP server definitions here may carry keys in their env blocks; `${VAR}` references are expanded by the host."
 [locations.source]
 kind = "documentation"
 url = "https://code.claude.com/docs/en/claude-directory"
 read_on = 2026-10-17
 quote = "Holds state that does not belong in settings.json: theme, OAuth session, per-project trust decisions, your personal MCP servers, and UI toggles."
+note = "oauthAccount keys: anthropics/claude-code issue #58625 (2026-05-13), https://github.com/anthropics/claude-code/issues/58625 — \"organizationType\": \"claude_max\", \"organizationRateLimitTier\": \"default_claude_max_20x\" (observed, from a user's backup of ~/.claude.json); billingType and seatTier observed on a Linux machine on 2026-10-17 (names only)"
 
 [[locations]]
 scope = "user"

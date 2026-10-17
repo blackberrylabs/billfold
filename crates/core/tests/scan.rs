@@ -42,7 +42,7 @@ fn fixture(home: &Path) {
     write(
         &home.join(".claude.json"),
         &format!(
-            r#"{{"oauthAccount":{{"emailAddress":"someone@example.org","organizationName":"Example Org","billingType":"stripe_subscription"}},"projects":{{"{}":{{}}}},"mcpServers":{{"brave":{{"command":"npx","env":{{"BRAVE_API_KEY":"BSA_0123456789abcdefghijklmnopqrstuv","OPENAI_API_KEY":"${{OPENAI_API_KEY}}"}}}}}}}}"#,
+            r#"{{"oauthAccount":{{"emailAddress":"someone@example.org","organizationName":"Example Org","billingType":"stripe_subscription","organizationType":"claude_max"}},"projects":{{"{}":{{}}}},"mcpServers":{{"brave":{{"command":"npx","env":{{"BRAVE_API_KEY":"BSA_0123456789abcdefghijklmnopqrstuv","OPENAI_API_KEY":"${{OPENAI_API_KEY}}"}}}}}}}}"#,
             home.join("proj").display()
         ),
     );

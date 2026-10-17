@@ -5,7 +5,7 @@
 
 id = "opencode"
 name = "OpenCode Zen"
-env_vars = ["OPENCODE_API_KEY"]
+env_vars = ["OPENCODE_API_KEY", "OPENCODE_ZEN_API_KEY"]
 config_names = ["opencode-api-key", "opencodeApiKey"]
 usage_url = "https://opencode.ai/console"
 login_credit = "either"
@@ -17,7 +17,7 @@ kind = "documentation"
 url = "https://opencode.ai/docs/zen/"
 read_on = 2026-10-17
 quote = "Sign in to the console, add your billing details and credits, and copy your API key."
-note = "curl example `-H \"Authorization: Bearer $OPENCODE_API_KEY\"`; \"use the format `opencode/<model-id>`\"; \"Console uses pay-as-you-go pricing. You are charged per request and can add credits to your account.\" or \"For a subscription with included usage, see OpenCode Go.\" — which of the two an OAuth login in the host's credential table pays with is not written on disk"
+note = "curl example `-H \"Authorization: Bearer $OPENCODE_API_KEY\"`; the alias is a third-party host's documentation, https://docs.openclaw.ai/providers/opencode (2026-10-17): \"Both catalogs use the same OpenCode API key infrastructure (`OPENCODE_API_KEY`, alias `OPENCODE_ZEN_API_KEY`)\"; the key prefix is not documented, a variable named after the provider is attributed by its name; \"use the format `opencode/<model-id>`\"; \"Console uses pay-as-you-go pricing. You are charged per request and can add credits to your account.\" or \"For a subscription with included usage, see OpenCode Go.\" — which of the two an OAuth login in the host's credential table pays with is not written on disk"
 
 [pricing]
 note = "Paid models are sold at the first-party price (\"Pass along price drops by selling at cost, with markup only to cover processing fees.\"), so the index's first-party row applies; models with the `-free` suffix cost nothing for a limited time."

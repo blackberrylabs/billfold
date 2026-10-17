@@ -26,9 +26,14 @@
   le disque ne dit pas lequel → crédit inconnu, avec la note. Le constat « non tarifé »
   compte désormais les mêmes requêtes que la table (une requête à zéro jeton n'en changeait
   le compte que d'un côté) et écrit ses jetons en `k`/`M`.
-- **Ouvert** : sur cette machine `~/.claude/.credentials.json` ne contient que `mcpOAuth`,
-  pas `claudeAiOauth` — le plan Claude Code n'est pas lisible là ; à voir si `oauthAccount`
-  dans `.claude.json` le porte (question posée, noms de champs seulement).
+- **Plan Claude Code (commit 4)** : sur cette machine `~/.claude/.credentials.json` ne
+  contient que `mcpOAuth`, pas `claudeAiOauth` ; le plan est dans `.claude.json`,
+  `oauthAccount.organizationType` (`claude_max`…), source publique anthropics/claude-code
+  #58625 ; un nom de plan n'écrase jamais un `billingType` qui dit « api ».
+- **Le passage 3 a trouvé une vraie clé** : `OPENCODE_ZEN_KEY` en ligne 1 de `~/.zshrc`,
+  mode 664, home traversable par les autres → EXPOSED (act now), attribuée par son nom
+  (« OpenCode Zen ») ; l'alias documenté `OPENCODE_ZEN_API_KEY` ajouté à la fiche, le
+  préfixe `oc_sk_` n'étant documenté nulle part de public.
 
 ## 2026-10-17 — cœur, CLI, app : tout tient sur le faux HOME
 
