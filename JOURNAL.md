@@ -5,7 +5,13 @@
 
 ## 2026-10-17 — release 0.1.0
 
-- **Tag** `v0.1.0` sur `aea13ae` (quatre commits après le premier). `packaging/build.sh`
+- **Push bloqué par GitHub** (push protection) : la clé DeepSeek *factice* du faux HOME de
+  test (`sk-` + 32 hexadécimaux, la forme exacte du fournisseur) a été prise pour une vraie.
+  Pas de dérogation : la chaîne est désormais assemblée à l'exécution dans le test, et les
+  cinq commits réécrits avant la première publication (aucun clone n'existait) ; la branche
+  `master` renommée `main` comme les modules frères. Leçon pour la famille : une clé de
+  test ne doit jamais avoir la forme exacte d'une vraie dans un fichier source.
+- **Tag** `v0.1.0` sur le commit des notes de release (six commits). `packaging/build.sh`
   lancé par Alexandre : `.deb` 7,6 Mo, `.rpm` 8,2 Mo, AppImage 10,5 Mo, `SHA256SUMS` ;
   `appimagetool` repris de Permitt, aucun téléchargement.
 - **Vérification depuis l'extérieur** : le `.deb` ouvert sans être installé (`ar x`) —
