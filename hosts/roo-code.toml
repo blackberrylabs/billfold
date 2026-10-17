@@ -1,0 +1,34 @@
+# Billfold host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "roo-code"
+name = "Roo Code"
+vendor = "Roo Code"
+kind = "extension"
+status = "active"
+application = "VS Code"
+
+[detect]
+paths = ["~/.config/Code/User/globalStorage/rooveterinaryinc.roo-cline", "~/.vscode/extensions/rooveterinaryinc.roo-cline-*", "~/.roo"]
+
+[keyring]
+service = "VS Code SecretStorage (roo_cline_config_api_config)"
+[keyring.source]
+kind = "source-code"
+url = "https://github.com/RooCodeInc/Roo-Code/blob/main/src/core/config/ProviderSettingsManager.ts"
+read_on = 2026-10-17
+quote = "this.context.secrets.get(this.secretsKey)"
+note = "b867ec9 L575; the provider profiles (names, apiProvider, keys) live inside the encrypted blob; VS Code desktop uses Electron safeStorage"
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "usage"
+path.any = "~/.config/Code/User/globalStorage/rooveterinaryinc.roo-cline/tasks/*/ui_messages.json"
+usage = { reader = "cline-tasks", cost_by_host = true }
+note = "Same `api_req_started` shape as Cline, plus apiProtocol; no model id in the entry (HistoryItem.modelId only)."
+[locations.source]
+kind = "source-code"
+url = "https://github.com/RooCodeInc/Roo-Code/blob/main/src/core/task/Task.ts"
+read_on = 2026-10-17
+quote = "tokensIn, tokensOut, cacheWrites, cacheReads, cost: totalCost ?? costResult.totalCost, cancelReason, streamingFailedMessage, apiProtocol"
+note = "b867ec9 L2660-2668; storage.ts L53-58 tasks dir"

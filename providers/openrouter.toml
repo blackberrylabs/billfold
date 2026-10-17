@@ -1,0 +1,25 @@
+id = "openrouter"
+name = "OpenRouter"
+env_vars = ["OPENROUTER_API_KEY"]
+config_names = ["openrouter-api-key", "openRouterApiKey", "openrouter_api_key"]
+usage_url = "https://openrouter.ai/activity"
+index_ids = []
+
+[source]
+kind = "documentation"
+url = "https://openrouter.ai/docs/api-reference/authentication"
+read_on = 2026-10-17
+quote = "Our API authenticates requests using Bearer tokens."
+note = "`Authorization: Bearer $OPENROUTER_API_KEY`; \"OpenRouter is a GitHub secret scanning partner\""
+
+[[shapes]]
+regex = "^sk-or-v1-[0-9a-f]{64}$"
+[shapes.source]
+kind = "observed"
+url = "https://github.com/trufflesecurity/trufflehog/blob/main/pkg/detectors/openrouter/openrouter.go"
+read_on = 2026-10-17
+quote = "\\b(sk-or-v1-[0-9a-f]{64})\\b"
+note = "31d7303 L28"
+
+[pricing]
+note = "A model routed through OpenRouter (`author/slug` ids) is priced at the index's entry for the underlying model when the slug maps; OpenRouter's own prices are not embedded (data license NOT DOCUMENTED)."

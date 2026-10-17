@@ -1,0 +1,13 @@
+id = "cerebras"
+name = "Cerebras"
+env_vars = ["CEREBRAS_API_KEY"]
+config_names = ["cerebras-api-key", "cerebrasApiKey", "cerebras_api_key"]
+usage_url = "https://cloud.cerebras.ai/"
+index_ids = ["cerebras"]
+
+[source]
+kind = "documentation"
+url = "https://inference-docs.cerebras.ai/quickstart"
+read_on = 2026-10-17
+quote = "export CEREBRAS_API_KEY=\"your-api-key-here\""
+note = "the `csk-` prefix is unverified: no shape"

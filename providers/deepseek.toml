@@ -1,0 +1,35 @@
+id = "deepseek"
+name = "DeepSeek"
+env_vars = ["DEEPSEEK_API_KEY"]
+config_names = ["deepseek-api-key", "deepseekApiKey", "deepseek_api_key"]
+usage_url = "https://platform.deepseek.com/usage"
+index_ids = ["deepseek"]
+aliases = [["deepseek-flash", "deepseek-v4.1-flash"], ["deepseek-v4-pro", "deepseek-v4"], ["deepseek-v4-flash", "deepseek-v4.1-flash"], ["deepseek-v4-flash-vision-exp", "deepseek-v4.1-flash"]]
+
+[source]
+kind = "documentation"
+url = "https://api-docs.deepseek.com/"
+read_on = 2026-10-17
+quote = "Authorization: Bearer ${DEEPSEEK_API_KEY}"
+note = "\"The DeepSeek API uses an API format compatible with OpenAI/Anthropic.\"; aliases from the Apipriceindex reply of 2026-10-17 (deepseek-flash ↔ deepseek:deepseek-v4.1-flash, deepseek-v4-pro ↔ deepseek:deepseek-v4; old names redirected to Flash since 2026-09-10)"
+
+[[shapes]]
+regex = "^sk-[a-f0-9]{32}$"
+[shapes.source]
+kind = "observed"
+url = "https://github.com/trufflesecurity/trufflehog/blob/main/pkg/detectors/deepseek/deepseek.go"
+read_on = 2026-10-17
+quote = "\\b(sk-[a-z0-9]{32})\\b"
+note = "31d7303 L28, keyword-gated on \"deepseek\": a bare `sk-` + 32 hex is ambiguous (DashScope legacy, LiteLLM master key) — attributed only with the variable name"
+
+[pricing]
+note = "The index stores the off-peak rate (`tier = off_peak`); peak hours are twice that."
+[pricing.off_peak]
+peak_multiplier = 2.0
+windows = [{ days = "mon-fri", start = "01:00", end = "04:00" }, { days = "mon-fri", start = "06:00", end = "10:00" }]
+[pricing.source]
+kind = "documentation"
+url = "https://api-docs.deepseek.com/quick_start/pricing"
+read_on = 2026-10-17
+quote = "Off-peak rates are half of the peak rates."
+note = "peak \"01:00–04:00 and 06:00–10:00 UTC, Monday through Friday, excluding Chinese public holidays\" — the windows above are the PEAK hours (the multiplier applies inside them); holidays not modelled; \"Product prices may vary and DeepSeek reserves the right to adjust them.\""

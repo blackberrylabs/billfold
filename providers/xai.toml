@@ -1,0 +1,35 @@
+id = "xai"
+name = "xAI"
+env_vars = ["XAI_API_KEY"]
+config_names = ["xai-api-key", "xaiApiKey", "xai_api_key", "grok-api-key"]
+usage_url = "https://console.x.ai/"
+index_ids = ["xai"]
+
+[source]
+kind = "documentation"
+url = "https://docs.x.ai/docs/overview"
+read_on = 2026-10-17
+quote = "Client(api_key=os.getenv(\"XAI_API_KEY\"))"
+
+[[shapes]]
+regex = "^xai-[0-9A-Za-z_]{80}$"
+[shapes.source]
+kind = "observed"
+url = "https://github.com/trufflesecurity/trufflehog/blob/main/pkg/detectors/xai/xai.go"
+read_on = 2026-10-17
+quote = "\\b(xai-[0-9a-zA-Z_]{80})\\b"
+note = "31d7303 L28; the `xai-` prefix is not on the official page"
+
+[pricing]
+note = "Cached input NOT DOCUMENTED on docs.x.ai (models.dev: 0.5); the index stores the ≤200K tier (`le_200k`)."
+[[pricing.long_context]]
+models = ["grok-4.7", "grok-4.6", "grok-4.5"]
+above = 200000
+input = 4.0
+output = 12.0
+[pricing.source]
+kind = "documentation"
+url = "https://docs.x.ai/docs/models"
+read_on = 2026-10-17
+quote = "grok-4.7 | 500k tokens | $2.00 | — | $6.00"
+note = "the >200K tier {input 4, output 12} is observed in models.dev (`context_over_200k`), not on the official page"

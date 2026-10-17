@@ -1,0 +1,13 @@
+id = "together"
+name = "Together AI"
+env_vars = ["TOGETHER_API_KEY"]
+config_names = ["together-api-key", "togetherApiKey", "together_api_key"]
+usage_url = "https://api.together.ai/settings/billing"
+index_ids = ["together"]
+
+[source]
+kind = "documentation"
+url = "https://docs.together.ai/docs/quickstart"
+read_on = 2026-10-17
+quote = "The SDK reads `TOGETHER_API_KEY` automatically when you call `Together()`."
+note = "key format NOT DOCUMENTED, no scanner rule"

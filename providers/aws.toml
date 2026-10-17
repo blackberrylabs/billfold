@@ -1,0 +1,23 @@
+id = "aws"
+name = "AWS (Bedrock)"
+env_vars = ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN", "AWS_BEARER_TOKEN_BEDROCK"]
+config_names = ["aws_access_key_id", "aws_secret_access_key", "awsAccessKey", "awsSecretKey", "awsBedrockApiKey"]
+usage_url = "https://console.aws.amazon.com/billing/"
+index_ids = ["amazon-bedrock"]
+id_prefixes = ["anthropic.", "us.anthropic.", "eu.anthropic.", "global.anthropic."]
+
+[source]
+kind = "documentation"
+url = "https://docs.aws.amazon.com/bedrock/latest/userguide/api-keys.html"
+read_on = 2026-10-17
+quote = "export AWS_BEARER_TOKEN_BEDROCK=${api-key}"
+note = "credentials file: docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html `~/.aws/credentials` with `aws_access_key_id` / `aws_secret_access_key`"
+
+[[shapes]]
+regex = "^(?:A3T[A-Z0-9]|AKIA|ASIA|ABIA|ACCA)[A-Z2-7]{16}$"
+[shapes.source]
+kind = "documentation"
+url = "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html"
+read_on = 2026-10-17
+quote = "AKIA"
+note = "`AKIA` = access key, `ASIA` = temporary STS key (documented); the full regex is gitleaks aws.go L15 (observed)"

@@ -1,0 +1,29 @@
+# Billfold host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "claude-desktop"
+name = "Claude Desktop"
+vendor = "Anthropic"
+kind = "desktop"
+status = "active"
+usage_url = "https://claude.ai/settings/usage"
+no_usage_log = "Chat conversations keep no local token log; the Code and Cowork tabs are Claude Code sessions, counted under Claude Code. The login is in the app's own store, not documented on Linux."
+
+[detect]
+paths = ["~/.config/Claude", "~/.config/claude-desktop", "~/.local/share/claude-desktop"]
+binaries = ["claude-desktop"]
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "settings"
+path.linux = "~/.config/Claude/claude_desktop_config.json"
+path.macos = "~/Library/Application Support/Claude/claude_desktop_config.json"
+path.windows = "%APPDATA%/Claude/claude_desktop_config.json"
+keys_in = ["mcpServers.*.env"]
+note = "MCP server `env` blocks are literal: a key there is a key in clear. The Linux path is the XDG shape, observed."
+[locations.source]
+kind = "documentation"
+url = "https://modelcontextprotocol.io/docs/develop/connect-local-servers"
+read_on = 2026-10-17
+quote = "\"env\": { \"APPDATA\": \"...\", \"BRAVE_API_KEY\": \"...\" }"
+note = "macOS and Windows paths documented on the page; Linux path observed"

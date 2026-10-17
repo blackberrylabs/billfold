@@ -1,0 +1,58 @@
+# Billfold host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "qwen-code"
+name = "Qwen Code"
+vendor = "Alibaba"
+kind = "cli"
+status = "active"
+
+[detect]
+paths = ["~/.qwen"]
+binaries = ["qwen"]
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "credential"
+credit = "subscription"
+provider = "alibaba"
+legacy = true
+path.any = "~/.qwen/oauth_creds.json"
+fields = { expires = "expiry_date", expires_unit = "ms" }
+secrets = ["access_token", "refresh_token", "id_token"]
+note = "The Qwen OAuth free tier was discontinued on 2026-04-15; the file may remain."
+[locations.source]
+kind = "source-code"
+url = "https://github.com/QwenLM/qwen-code/blob/main/packages/core/src/qwen/qwenOAuth2.ts"
+read_on = 2026-10-17
+quote = "QWEN_CREDENTIAL_FILENAME = 'oauth_creds.json'"
+note = "bd8684c L41, mode 0o600 L1094; docs/users/configuration/auth.md L96-97 \"The Qwen OAuth free tier was discontinued on 2026-04-15.\""
+
+[[locations]]
+scope = "user"
+format = "jsonc"
+kind = "settings"
+path.any = "~/.qwen/settings.json"
+fields = { mode = "security.auth.selectedType", mode_subscription = ["qwen-oauth"], mode_api_key = ["openai", "openai-responses", "anthropic", "gemini", "vertex-ai"], model = "model.name" }
+keys_in = ["env"]
+note = "`env` stores API keys directly in settings.json as a fallback — keys in clear."
+[locations.source]
+kind = "documentation"
+url = "https://github.com/QwenLM/qwen-code/blob/main/docs/users/configuration/auth.md"
+read_on = 2026-10-17
+quote = "`env` Stores API keys directly in `settings.json` as a fallback"
+note = "L290-300; `security.auth.selectedType` \"Tells Qwen Code which protocol to use on startup (e.g. `openai`, `anthropic`, `gemini`)\""
+
+[[locations]]
+scope = "user"
+format = "jsonl"
+kind = "usage"
+path.any = "~/.qwen/projects/*/chats/*.jsonl"
+usage = { reader = "qwen-jsonl", retention_days = 30, retention_setting = "general.cleanupPeriodDays", retention_file = "~/.qwen/settings.json" }
+note = "type:\"assistant\" records carry usageMetadata.{promptTokenCount,candidatesTokenCount,cachedContentTokenCount,thoughtsTokenCount,totalTokenCount}, model, timestamp and executionContext.authType — the account type is in the log. Retention documented for subagent transcripts and debug logs; chat files themselves not documented as pruned."
+[locations.source]
+kind = "source-code"
+url = "https://github.com/QwenLM/qwen-code/blob/main/packages/core/src/services/chatRecordingService.ts"
+read_on = 2026-10-17
+quote = "executionContext: { modelId, authType?, approvalMode }"
+note = "bd8684c L455-480; path storage.ts L619-623 `~/.qwen/projects/<slug>/chats/<sessionId>.jsonl`; AuthType auth-type.ts L8-15"

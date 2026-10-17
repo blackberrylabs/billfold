@@ -1,0 +1,78 @@
+[package]
+name = "billfold"
+description = "What this machine spends on AI: the accounts it is wired to, the keys it holds, the tokens it burned — read-only"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "billfold-app"
+path = "src/main.rs"
+
+[dependencies]
+billfold-core = { path = "../core" }
+bbl-hostrules.workspace = true
+bbl-report.workspace = true
+iced = { version = "=0.13.1", features = ["tokio"] }
+bbl-ui.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+# ---------------------------------------------------------------- packaging
+# `packaging/build.sh` builds the workspace once, then runs `cargo deb --no-build` and
+# `cargo generate-rpm` from here, so one package ships both binaries.
+
+[package.metadata.deb]
+name = "billfold"
+maintainer = "Alexandre Do <alexandre@blackberrylabs.dev>"
+copyright = "2026, Alexandre Do"
+license-file = ["../../LICENSE", "0"]
+extended-description = """\
+Billfold reads the credential files, the configuration and the usage logs the AI coding \
+hosts leave on a machine (Claude Code, Codex, Cursor, Gemini CLI, OpenCode, Goose, Aider, \
+Cline…) and shows which accounts each host is logged into, where the provider keys sit, and \
+what was consumed — in tokens first, in API-equivalent dollars second, from an embedded \
+API Price Index snapshot. Read-only: no network, secrets masked, nothing written outside \
+its own preferences. Ships the desktop app (billfold-app) and the command line (billfold)."""
+section = "devel"
+priority = "optional"
+depends = "$auto, libxkbcommon0, libwayland-client0 | libx11-6"
+recommends = "libvulkan1, mesa-vulkan-drivers"
+assets = [
+    ["target/release/billfold-app", "usr/bin/", "755"],
+    ["target/release/billfold", "usr/bin/", "755"],
+    ["../../assets/billfold.desktop", "usr/share/applications/", "644"],
+    ["../../assets/icon.svg", "usr/share/icons/hicolor/scalable/apps/billfold.svg", "644"],
+    ["../../assets/icon-16.png", "usr/share/icons/hicolor/16x16/apps/billfold.png", "644"],
+    ["../../assets/icon-32.png", "usr/share/icons/hicolor/32x32/apps/billfold.png", "644"],
+    ["../../assets/icon-48.png", "usr/share/icons/hicolor/48x48/apps/billfold.png", "644"],
+    ["../../assets/icon-64.png", "usr/share/icons/hicolor/64x64/apps/billfold.png", "644"],
+    ["../../assets/icon-128.png", "usr/share/icons/hicolor/128x128/apps/billfold.png", "644"],
+    ["../../assets/icon-256.png", "usr/share/icons/hicolor/256x256/apps/billfold.png", "644"],
+    ["../../assets/icon-512.png", "usr/share/icons/hicolor/512x512/apps/billfold.png", "644"],
+    ["../../README.md", "usr/share/doc/billfold/README.md", "644"],
+]
+
+[package.metadata.generate-rpm]
+name = "billfold"
+summary = "What this machine spends on AI — accounts, keys, tokens; read-only"
+license = "MIT"
+url = "https://github.com/blackberrylabs/billfold"
+requires = { libxkbcommon = "*" }
+assets = [
+    { source = "target/release/billfold-app", dest = "/usr/bin/billfold-app", mode = "755" },
+    { source = "target/release/billfold", dest = "/usr/bin/billfold", mode = "755" },
+    { source = "assets/billfold.desktop", dest = "/usr/share/applications/billfold.desktop", mode = "644" },
+    { source = "assets/icon.svg", dest = "/usr/share/icons/hicolor/scalable/apps/billfold.svg", mode = "644" },
+    { source = "assets/icon-16.png", dest = "/usr/share/icons/hicolor/16x16/apps/billfold.png", mode = "644" },
+    { source = "assets/icon-32.png", dest = "/usr/share/icons/hicolor/32x32/apps/billfold.png", mode = "644" },
+    { source = "assets/icon-48.png", dest = "/usr/share/icons/hicolor/48x48/apps/billfold.png", mode = "644" },
+    { source = "assets/icon-64.png", dest = "/usr/share/icons/hicolor/64x64/apps/billfold.png", mode = "644" },
+    { source = "assets/icon-128.png", dest = "/usr/share/icons/hicolor/128x128/apps/billfold.png", mode = "644" },
+    { source = "assets/icon-256.png", dest = "/usr/share/icons/hicolor/256x256/apps/billfold.png", mode = "644" },
+    { source = "assets/icon-512.png", dest = "/usr/share/icons/hicolor/512x512/apps/billfold.png", mode = "644" },
+    { source = "README.md", dest = "/usr/share/doc/billfold/README.md", mode = "644", doc = true },
+    { source = "LICENSE", dest = "/usr/share/licenses/billfold/LICENSE", mode = "644", doc = true },
+]

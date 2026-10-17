@@ -1,0 +1,22 @@
+id = "github"
+name = "GitHub"
+env_vars = ["GH_TOKEN", "GITHUB_TOKEN", "COPILOT_GITHUB_TOKEN", "GH_ENTERPRISE_TOKEN"]
+config_names = ["github-token", "githubToken", "github_token", "oauth_token"]
+usage_url = "https://github.com/settings/billing"
+index_ids = []
+
+[source]
+kind = "documentation"
+url = "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/about-authentication-to-github"
+read_on = 2026-10-17
+quote = "GitHub issues tokens that begin with a prefix to indicate the token's type."
+note = "ghp_ classic PAT, github_pat_ fine-grained, gho_ OAuth, ghu_, ghs_, ghr_; Copilot CLI: COPILOT_GITHUB_TOKEN, GH_TOKEN, GITHUB_TOKEN"
+
+[[shapes]]
+regex = "^(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{36,255}$|^github_pat_[A-Za-z0-9_]{82}$|^ghs_[0-9]{1,20}_[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$"
+[shapes.source]
+kind = "observed"
+url = "https://github.com/trufflesecurity/trufflehog/blob/main/pkg/detectors/github/v2/github.go"
+read_on = 2026-10-17
+quote = "\\b((?:ghp|gho|ghu|ghs|ghr|github_pat)_[a-zA-Z0-9_]{36,255})\\b"
+note = "31d7303 L37; gitleaks github.go L43 `github_pat_\\w{82}`; secretlint github index.ts L103-113 for the new `ghs_<digits>_<jwt>` shape"

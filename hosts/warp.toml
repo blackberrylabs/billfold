@@ -1,0 +1,24 @@
+# Billfold host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "warp"
+name = "Warp"
+vendor = "Warp"
+kind = "terminal"
+status = "active"
+references = ["https://docs.warp.dev/terminal/settings/file-locations"]
+usage_url = "https://app.warp.dev/settings/billing"
+check = "warp agent, then /usage"
+no_usage_log = "Usage is shown from the server (`/usage`, `/cost`); the local state directory holds a database of undocumented schema. Provider keys are in the device's secure storage."
+
+[detect]
+paths = ["~/.config/warp-terminal", "~/.local/state/warp-terminal", "~/.local/share/warp-terminal"]
+binaries = ["warp-terminal", "warp"]
+
+[keyring]
+service = "warp (device secure storage)"
+[keyring.source]
+kind = "documentation"
+url = "https://docs.warp.dev/agents/cli/reference"
+read_on = 2026-10-17
+quote = "Warp never stores provider keys on its servers"
+note = "provider keys \"in your device's secure storage\"; file-locations.md: state under `${XDG_STATE_HOME:-$HOME/.local/state}/warp-terminal/`"

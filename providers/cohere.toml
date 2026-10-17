@@ -1,0 +1,13 @@
+id = "cohere"
+name = "Cohere"
+env_vars = ["CO_API_KEY", "COHERE_API_KEY"]
+config_names = ["cohere-api-key", "cohereApiKey", "cohere_api_key"]
+usage_url = "https://dashboard.cohere.com/billing"
+index_ids = ["cohere"]
+
+[source]
+kind = "observed"
+url = "https://github.com/gitleaks/gitleaks/blob/master/cmd/generate/config/rules/cohere.go"
+read_on = 2026-10-17
+quote = "[]string{\"cohere\", \"CO_API_KEY\"}"
+note = "b58d3f1 L14, keyword-gated `[a-zA-Z0-9]{40}`; the variable name is NOT DOCUMENTED on the pages read (docs.cohere.com/docs/rate-limits names \"evaluation keys … production keys\" only)"

@@ -1,0 +1,21 @@
+# Billfold host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "jetbrains-ai"
+name = "JetBrains AI Assistant / Junie"
+vendor = "JetBrains"
+kind = "ide"
+status = "active"
+references = ["https://www.jetbrains.com/help/ai-assistant/licensing-and-subscriptions.html"]
+usage_url = "https://account.jetbrains.com/"
+no_usage_log = "Quota usage is computed by JetBrains and shown in the IDE widget and the JetBrains Account; no local file is documented. Provider keys go to the IDE password safe (native keychain or KeePass)."
+
+[detect]
+paths = ["~/.config/JetBrains", "~/.local/share/JetBrains", "~/.junie"]
+
+[keyring]
+service = "IDE password safe (GNOME Keyring / KWallet / c.kdbx)"
+[keyring.source]
+kind = "documentation"
+url = "https://www.jetbrains.com/help/idea/reference-ide-settings-password-safe.html"
+read_on = 2026-10-17
+quote = "if you have both GNOME Keyring and KWallet, IntelliJ IDEA will use GNOME Keyring"

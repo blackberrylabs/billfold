@@ -1,0 +1,32 @@
+# Billfold host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "kiro"
+name = "Kiro"
+vendor = "AWS"
+kind = "cli"
+status = "active"
+check = "kiro-cli whoami"
+usage_url = "https://kiro.dev/account"
+no_usage_log = "Kiro's local SQLite records credits per session (third-party reading), not tokens; the session store is owner-only."
+
+[detect]
+paths = ["~/.kiro", "~/.local/share/kiro-cli"]
+binaries = ["kiro-cli", "kiro"]
+
+[[locations]]
+scope = "user"
+format = "sqlite"
+kind = "credential"
+credit = "subscription"
+provider = "aws"
+path.linux = "~/.local/share/kiro-cli/data.sqlite3"
+path.macos = "~/Library/Application Support/kiro-cli/data.sqlite3"
+path.windows = "%APPDATA%/kiro-cli/data.sqlite3"
+sqlite_kv = { table = "auth_kv", key_column = "key", value_column = "value" }
+note = "Layout of the predecessor (Amazon Q Developer CLI): table auth_kv, key `codewhisperer:odic:token` with access_token, refresh_token, expires_at, region, start_url. Whether Kiro CLI kept it is unverified: presence only."
+[locations.source]
+kind = "observed"
+url = "https://pypi.org/project/kiro-cli-history/"
+read_on = 2026-10-17
+quote = "The Kiro CLI SQLite database (`data.sqlite3`)"
+note = "predecessor: aws/amazon-q-developer-cli 15cc8f3 database/mod.rs L172 `Table::Auth => \"auth_kv\"`, auth/builder_id.rs L292-304; official: kiro.dev/docs/cli/chat/session-management \"SQLite database in `~/.kiro/`\", \"owner-only access\""

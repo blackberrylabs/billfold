@@ -1,0 +1,40 @@
+# Billfold host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "devin"
+name = "Devin"
+vendor = "Cognition"
+kind = "cli"
+status = "active"
+check = "devin auth"
+no_usage_log = "Devin runs on the vendor's side; no local usage record is documented."
+
+[detect]
+paths = ["~/.config/devin", "~/.local/share/devin", "~/.codeium/windsurf"]
+binaries = ["devin"]
+
+[[locations]]
+scope = "user"
+format = "toml"
+kind = "credential"
+credit = "subscription"
+provider = "devin"
+path.any = "~/.local/share/devin/credentials.toml"
+note = "Field names not documented; presence only. XDG_DATA_HOME relocates it."
+[locations.source]
+kind = "documentation"
+url = "https://docs.devin.ai/cli/enterprise/devin-auth.md"
+read_on = 2026-10-17
+quote = "After `devin auth login`, Devin CLI stores your API token in `credentials.toml`."
+note = "\"treat it as sensitive: anyone with this file can authenticate as you.\""
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "settings"
+path.any = "~/.config/devin/config.json"
+fields = { model = "agent.model" }
+[locations.source]
+kind = "documentation"
+url = "https://docs.devin.ai/cli/config-file"
+read_on = 2026-10-17
+quote = "agent.model"

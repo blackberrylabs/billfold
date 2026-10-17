@@ -1,0 +1,46 @@
+# Billfold host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "zed"
+name = "Zed"
+vendor = "Zed Industries"
+kind = "ide"
+status = "active"
+
+[detect]
+paths = ["~/.config/zed", "~/.local/share/zed"]
+binaries = ["zed", "zeditor"]
+
+[keyring]
+service = "zed (Secret Service via oo7, keyed by provider URL)"
+[keyring.source]
+kind = "documentation"
+url = "https://zed.dev/docs/ai/configuration"
+read_on = 2026-10-17
+quote = "Provider keys saved through Zed are stored in the system keychain, not in `settings.json`."
+note = "crates/gpui_linux/src/linux/platform.rs L1028-1043 oo7::Keyring (56934ec); label `zed-github-account`"
+
+[[locations]]
+scope = "user"
+format = "jsonc"
+kind = "settings"
+path.any = "~/.config/zed/settings.json"
+fields = { provider = "agent.default_model.provider", model = "agent.default_model.model" }
+[locations.source]
+kind = "documentation"
+url = "https://zed.dev/docs/ai/agent-settings"
+read_on = 2026-10-17
+quote = "\"agent\": { \"default_model\": { \"provider\": \"anthropic\", \"model\": \"…\" }"
+
+[[locations]]
+scope = "user"
+format = "sqlite"
+kind = "usage"
+path.any = "~/.local/share/zed/threads/threads.db"
+usage = { reader = "zed-sqlite" }
+note = "Table threads(id, summary, updated_at, data_type, data BLOB): data is JSON or zstd-compressed JSON with cumulative_token_usage, request_token_usage{message id → {input_tokens, output_tokens, cache_creation_input_tokens, cache_read_input_tokens}} and model {provider, model}; provider `zed.dev` is the Zed plan."
+[locations.source]
+kind = "source-code"
+url = "https://github.com/zed-industries/zed/blob/main/crates/agent/src/db.rs"
+read_on = 2026-10-17
+quote = "data_type"
+note = "56934ec L446-459 (table), L364-366 json|zstd; thread payload L55-67; ZED_CLOUD_PROVIDER_ID = \"zed.dev\" (provider.rs L20)"

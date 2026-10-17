@@ -1,0 +1,95 @@
+# Billfold host sheet. Read by the scan, never written. Every claim names its source.
+# Schema: docs/hosts.md.
+
+id = "claude-code"
+name = "Claude Code"
+vendor = "Anthropic"
+kind = "cli"
+status = "active"
+check = "claude, then /status (Login, Organization, Email rows) and /usage"
+hints.usage = "/usage — plan bars come from a network request; the Session block is computed locally at list price"
+
+[detect]
+paths = ["~/.claude", "~/.claude.json"]
+binaries = ["claude"]
+
+# ---------------------------------------------------------------- credentials
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "credential"
+credit = "subscription"
+provider = "anthropic"
+path.linux = "~/.claude/.credentials.json"
+path.macos = "~/.claude/.credentials.json"
+path.windows = "%USERPROFILE%/.claude/.credentials.json"
+fields = { plan = "claudeAiOauth.subscriptionType", expires = "claudeAiOauth.expiresAt", expires_unit = "ms" }
+secrets = ["claudeAiOauth.accessToken", "claudeAiOauth.refreshToken"]
+note = "On macOS the Keychain is the default and this file the fallback; CLAUDE_CONFIG_DIR relocates it. The inner keys (claudeAiOauth.subscriptionType, rateLimitTier, expiresAt) are observed by third parties, not documented."
+[locations.source]
+kind = "documentation"
+url = "https://code.claude.com/docs/en/authentication"
+read_on = 2026-10-17
+quote = "On Linux, credentials are stored in `~/.claude/.credentials.json` with file mode `0600`."
+note = "inner keys: scitex-agent-container docs, \"Contains (inside a `claudeAiOauth` subdict): `accessToken`, `refreshToken`, `expiresAt`, `scopes`, `subscriptionType`, `rateLimitTier`.\" (observed)"
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "settings"
+provider = "anthropic"
+path.any = "~/.claude.json"
+fields = { email = "oauthAccount.emailAddress", organization = "oauthAccount.organizationName", plan = "oauthAccount.billingType" }
+keys_in = ["mcpServers.*.env", "mcpServers.*.headers"]
+note = "oauthAccount keys are observed, not documented. MCP server definitions here may carry keys in their env blocks; `${VAR}` references are expanded by the host."
+[locations.source]
+kind = "documentation"
+url = "https://code.claude.com/docs/en/claude-directory"
+read_on = 2026-10-17
+quote = "Holds state that does not belong in settings.json: theme, OAuth session, per-project trust decisions, your personal MCP servers, and UI toggles."
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "credential"
+credit = "api-key"
+provider = "anthropic"
+path.any = "~/.config/anthropic/credentials/*.json"
+fields = { expires = "expires_at" }
+secrets = ["access_token", "refresh_token"]
+note = "Anthropic profiles: `configs/<profile>.json` is non-secret (authentication type, organization), `credentials/<profile>.json` is the cached token."
+[locations.source]
+kind = "documentation"
+url = "https://platform.claude.com/docs/en/manage-claude/wif-reference"
+read_on = 2026-10-17
+quote = "`<config_dir>/credentials/<profile>.json` … the cached `access_token`, `expires_at`, and (for interactive login) `refresh_token`. Secret. Written by the SDK with mode `0600`."
+
+[[locations]]
+scope = "project"
+format = "json"
+kind = "settings"
+path.any = ".mcp.json"
+keys_in = ["mcpServers.*.env", "mcpServers.*.headers"]
+[locations.source]
+kind = "documentation"
+url = "https://code.claude.com/docs/en/mcp"
+read_on = 2026-10-17
+quote = "`${VAR}`: expands to the value of environment variable `VAR`"
+note = "Project scope: `.mcp.json` in project root; `env`, `headers`, `url` may hold literal values"
+
+# ---------------------------------------------------------------- usage
+
+[[locations]]
+scope = "user"
+format = "jsonl"
+kind = "usage"
+path.any = "~/.claude/projects/**/*.jsonl"
+usage = { reader = "claude-jsonl", retention_days = 30, retention_setting = "cleanupPeriodDays", retention_file = "~/.claude/settings.json", cost_by_host = false, quota = false }
+note = "assistant lines carry message.usage.{input_tokens,output_tokens,cache_creation_input_tokens,cache_read_input_tokens}, cache_creation.{ephemeral_5m,ephemeral_1h}_input_tokens, output_tokens_details.thinking_tokens, service_tier, inference_geo, speed; one line per content block of the same response → dedup on (message.id, requestId); subagent files under <session>/subagents/ carry isSidechain:true and may replay the parent; model \"<synthetic>\" is skipped. CLAUDE_CONFIG_DIR relocates the directory."
+[locations.source]
+kind = "documentation"
+url = "https://code.claude.com/docs/en/sessions"
+read_on = 2026-10-17
+quote = "By default, Claude Code stores transcripts as JSONL at `~/.claude/projects/<project>/<session-id>.jsonl`"
+note = "retention: claude-directory.md \"Claude Code deletes the files in the paths below once they're older than `cleanupPeriodDays` … The default is 30 days\"; format \"is internal to Claude Code and changes between versions\"; fields observed on a v2.1.302 transcript on 2026-10-17"

@@ -1,0 +1,69 @@
+# Billfold host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "cline"
+name = "Cline"
+vendor = "Cline Bot"
+kind = "extension"
+status = "active"
+application = "VS Code"
+
+[detect]
+paths = ["~/.cline", "~/.config/Code/User/globalStorage/saoudrizwan.claude-dev", "~/.vscode/extensions/saoudrizwan.claude-dev-*"]
+binaries = ["cline"]
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "settings"
+path.any = "~/.cline/data/globalState.json"
+fields = { provider = "actModeApiProvider", email = "userInfo.email" }
+note = "`configuredApiKeys` is a map provider → bool, safe; `planModeApiProvider` is the other selection. CLINE_DATA_DIR / CLINE_DIR relocate the directory."
+[locations.source]
+kind = "source-code"
+url = "https://github.com/cline/cline/blob/main/apps/vscode/src/shared/storage/storage-context.ts"
+read_on = 2026-10-17
+quote = "`<dataDir>/globalState.json` — global state"
+note = "a42df8c L109-111; keys state-keys.ts L249-256 planModeApiProvider/actModeApiProvider, L64 configuredApiKeys, L72 userInfo"
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "credential"
+credit = "api-key"
+path.any = "~/.cline/data/secrets.json"
+keys_in = [""]
+note = "All provider keys in clear JSON (mode 0600), migrated out of VS Code's SecretStorage."
+[locations.source]
+kind = "source-code"
+url = "https://github.com/cline/cline/blob/main/apps/vscode/src/shared/storage/storage-context.ts"
+read_on = 2026-10-17
+quote = "`<dataDir>/secrets.json` — secrets (mode 0o600)"
+note = "a42df8c L109-111, L140-142 \"Owner read/write only — protects API keys\"; SECRETS_KEYS state-keys.ts L317-352"
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "usage"
+path.any = "~/.config/Code/User/globalStorage/saoudrizwan.claude-dev/tasks/*/ui_messages.json"
+usage = { reader = "cline-tasks", cost_by_host = true }
+note = "entries {type:\"say\", say:\"api_req_started\", text: '{\"tokensIn\",\"tokensOut\",\"cacheWrites\",\"cacheReads\",\"cost\"}', ts}; updated in place, one per request; model from task_metadata.json / taskHistory."
+[locations.source]
+kind = "source-code"
+url = "https://github.com/cline/cline/blob/main/apps/vscode/src/core/storage/disk.ts"
+read_on = 2026-10-17
+quote = "api_conversation_history.json, ui_messages.json, task_metadata.json"
+note = "a42df8c L18-34; getApiMetrics.ts L19-26; publisher `saoudrizwan`, name `claude-dev` (package.json)"
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "usage"
+path.any = "~/.cline/data/sessions/*/*.json"
+usage = { reader = "cline-sessions", cost_by_host = true }
+note = "Session manifest with metadata.usage / aggregateUsage {inputTokens, outputTokens, cacheReadTokens, cacheWriteTokens, totalCost} and provider, model, cwd."
+[locations.source]
+kind = "source-code"
+url = "https://github.com/cline/cline/blob/main/sdk/packages/shared/src/storage/paths.ts"
+read_on = 2026-10-17
+quote = "~/.cline/data"
+note = "a42df8c L186-252; core/src/types/sessions.ts L4-10 usage fields; local-runtime-host.ts L481-482"

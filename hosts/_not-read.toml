@@ -1,0 +1,26 @@
+# Hosts Billfold knows about but does not read, with the reason. Shown as such, never guessed.
+
+id = "_not-read"
+name = "Not read"
+kind = "list"
+status = "out-of-scope"
+
+[[hosts]]
+id = "ollama"
+name = "Ollama"
+reason = "Local models: no account, no key, no price. Token counts exist only in API responses and are never written to disk (ollama/ollama d1ed3fd, docs/api.md L102-105)."
+
+[[hosts]]
+id = "lm-studio"
+name = "LM Studio"
+reason = "Local models: no provider account; `~/.lmstudio/.internal/lms-key-2` is a local pass-key, not a provider key."
+
+[[hosts]]
+id = "antigravity"
+name = "Antigravity"
+reason = "Replaced Gemini CLI on 2026-06-18 (codeassist.google); its local files are not documented yet."
+
+[[hosts]]
+id = "junie-cli"
+name = "Junie CLI"
+reason = "No credential or usage file documented apart from the IDE's password safe."

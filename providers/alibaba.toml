@@ -1,0 +1,32 @@
+id = "alibaba"
+name = "Alibaba Cloud (DashScope, Qwen)"
+env_vars = ["DASHSCOPE_API_KEY", "QWENCLOUD_API_KEY", "QWEN_API_KEY"]
+config_names = ["dashscope-api-key", "dashscopeApiKey", "qwen-api-key", "qwenApiKey"]
+usage_url = "https://modelstudio.console.alibabacloud.com/"
+index_ids = ["alibaba"]
+id_prefixes = ["qwen/"]
+
+[source]
+kind = "documentation"
+url = "https://www.alibabacloud.com/help/en/model-studio/get-api-key"
+read_on = 2026-10-17
+quote = "For Variable Name, enter DASHSCOPE_API_KEY"
+note = "\"Starts with sk- and is about 32 characters long.\" (pre-upgrade) / \"All API keys created after the upgrade start with sk-ws.\" / \"dedicated API key (starts with sk-sp-)\"; \"The plaintext key is displayed only once upon creation.\""
+
+[[shapes]]
+regex = "^sk-(?:ws|sp-)[A-Za-z0-9_-]{16,}$"
+[shapes.source]
+kind = "documentation"
+url = "https://www.alibabacloud.com/help/en/model-studio/get-api-key"
+read_on = 2026-10-17
+quote = "All API keys created after the upgrade start with sk-ws."
+
+[pricing]
+note = "Prices depend on the region (Singapore vs Beijing); the index stores the first tier. Cache hits 10 % of input, explicit cache creation 125 %."
+cache_write_5m = 1.25
+[pricing.source]
+kind = "documentation"
+url = "https://www.alibabacloud.com/help/en/model-studio/model-pricing"
+read_on = 2026-10-17
+quote = "cache hits are billed at 10% of the standard input price, and explicit cache creation at 125%"
+note = "\"All tokens in the request are billed at the unit price of the corresponding tier.\""

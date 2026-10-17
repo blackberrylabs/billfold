@@ -1,0 +1,95 @@
+# Billfold host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "gemini-cli"
+name = "Gemini CLI"
+vendor = "Google"
+kind = "cli"
+status = "active"
+check = "gemini, then /stats"
+
+[detect]
+paths = ["~/.gemini"]
+binaries = ["gemini"]
+
+[keyring]
+service = "gemini-cli-oauth"
+[keyring.source]
+kind = "source-code"
+url = "https://github.com/google-gemini/gemini-cli/blob/main/packages/core/src/code_assist/oauth-credential-storage.ts"
+read_on = 2026-10-17
+quote = "KEYCHAIN_SERVICE_NAME = 'gemini-cli-oauth'"
+note = "ed96fae L16-17; API keys under service 'gemini-cli-api-key' (core/apiKeyCredentialStorage.ts L12); when no keychain, an AES-encrypted ~/.gemini/gemini-credentials.json"
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "credential"
+credit = "keyring-fallback"
+provider = "google"
+path.any = "~/.gemini/gemini-credentials.json"
+note = "AES-256-GCM encrypted file written when the keychain is unavailable: presence only."
+[locations.source]
+kind = "source-code"
+url = "https://github.com/google-gemini/gemini-cli/blob/main/packages/core/src/services/fileKeychain.ts"
+read_on = 2026-10-17
+quote = "scryptSync('gemini-cli-oauth', hostname-username-gemini-cli)"
+note = "ed96fae L19-26, mode 0o600 L116"
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "credential"
+credit = "subscription"
+provider = "google"
+legacy = true
+path.any = "~/.gemini/oauth_creds.json"
+fields = { expires = "expiry_date", expires_unit = "ms" }
+secrets = ["access_token", "refresh_token", "id_token"]
+note = "Legacy file-based storage, migrated to the keychain and deleted on clear."
+[locations.source]
+kind = "source-code"
+url = "https://github.com/google-gemini/gemini-cli/blob/main/packages/core/src/config/storage.ts"
+read_on = 2026-10-17
+quote = "OAUTH_FILE = 'oauth_creds.json'"
+note = "ed96fae L22; oauth-credential-storage.ts L49 \"Fallback: Try to migrate from old file-based storage\""
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "settings"
+provider = "google"
+path.any = "~/.gemini/google_accounts.json"
+fields = { email = "active" }
+[locations.source]
+kind = "source-code"
+url = "https://github.com/google-gemini/gemini-cli/blob/main/packages/core/src/utils/userAccountManager.ts"
+read_on = 2026-10-17
+quote = "interface UserAccounts { active: string | null; old: string[] }"
+note = "ed96fae L12-15; `active` is the e-mail cached from userinfo (oauth2.ts L815)"
+
+[[locations]]
+scope = "user"
+format = "jsonc"
+kind = "settings"
+provider = "google"
+path.any = "~/.gemini/settings.json"
+fields = { mode = "security.auth.selectedType", mode_subscription = ["oauth-personal"], mode_api_key = ["gemini-api-key", "vertex-ai"] }
+[locations.source]
+kind = "documentation"
+url = "https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/configuration.md"
+read_on = 2026-10-17
+quote = "`security.auth.selectedType` (string): The currently selected authentication type."
+
+[[locations]]
+scope = "user"
+format = "jsonl"
+kind = "usage"
+path.any = "~/.gemini/tmp/*/chats/session-*.jsonl"
+usage = { reader = "gemini-jsonl", retention_days = 30, retention_setting = "general.sessionRetention.maxAge", retention_file = "~/.gemini/settings.json" }
+note = "lines type:\"gemini\" carry tokens.{input,output,cached,thoughts,tool,total} and model; the message is appended again when the tokens arrive → keep the last record per id; `cached` is a subset of `input`."
+[locations.source]
+kind = "documentation"
+url = "https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/session-management.md"
+read_on = 2026-10-17
+quote = "Sessions are stored in `~/.gemini/tmp/<project_hash>/chats/`"
+note = "fields: chatRecordingService.ts L1143-1150; dedup L448 `messagesMap.set(id, record)`; retention `general.sessionRetention.maxAge` default \"30d\""

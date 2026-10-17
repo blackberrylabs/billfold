@@ -1,0 +1,25 @@
+id = "groq"
+name = "Groq"
+env_vars = ["GROQ_API_KEY"]
+config_names = ["groq-api-key", "groqApiKey", "groq_api_key"]
+usage_url = "https://console.groq.com/settings/usage"
+index_ids = ["groq"]
+id_prefixes = ["openai/", "meta-llama/", "moonshotai/", "qwen/"]
+
+[source]
+kind = "documentation"
+url = "https://console.groq.com/docs/quickstart"
+read_on = 2026-10-17
+quote = "By default, the provider will look for `GROQ_API_KEY` as the API key."
+
+[[shapes]]
+regex = "^gsk_[A-Za-z0-9]{52}$"
+[shapes.source]
+kind = "observed"
+url = "https://github.com/trufflesecurity/trufflehog/blob/main/pkg/detectors/groq/groq.go"
+read_on = 2026-10-17
+quote = "\\b(gsk_[a-zA-Z0-9]{52})\\b"
+note = "31d7303 L25; secretlint groq index.ts:43 same"
+
+[pricing]
+note = "groq.com/pricing shows no prices (NOT DOCUMENTED via fetch); the index carries 7 Groq endpoints read via OpenRouter."

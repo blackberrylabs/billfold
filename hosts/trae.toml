@@ -1,0 +1,13 @@
+# Billfold host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "trae"
+name = "Trae"
+vendor = "ByteDance"
+kind = "ide"
+status = "active"
+references = ["https://www.trae.ai/pricing"]
+no_usage_log = "Trae meters usage on its servers (\"Dollar Usage\"); nothing is documented locally, and docs.trae.ai refuses automated reading."
+
+[detect]
+paths = ["~/.config/Trae", "~/.trae"]
+binaries = ["trae"]

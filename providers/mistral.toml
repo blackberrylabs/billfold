@@ -1,0 +1,22 @@
+id = "mistral"
+name = "Mistral"
+env_vars = ["MISTRAL_API_KEY"]
+config_names = ["mistral-api-key", "mistralApiKey", "mistral_api_key"]
+usage_url = "https://console.mistral.ai/usage"
+index_ids = ["mistral"]
+aliases = [["mistral-large-4", "mistral-large-4-0"], ["mistral-large-latest", "mistral-large-4-0"], ["codestral-latest", "codestral"], ["codestral-2508", "codestral"], ["devstral-2512", "devstral"], ["mistral-medium-latest", "mistral-medium-3-5"]]
+
+[source]
+kind = "documentation"
+url = "https://docs.mistral.ai/getting-started/clients"
+read_on = 2026-10-17
+quote = "api_key = os.environ[\"MISTRAL_API_KEY\"]"
+note = "key format NOT DOCUMENTED, no scanner rule; price page uses marketing names (mistral-large-4-0 slug per Apipriceindex)"
+
+[pricing]
+note = "Cached input is in the index (\"cached input tokens reduce input cost by up to 90%\"). Batch −50 %: noted, not applied. Prices on sale are stored as billed, with the base price in the index's base fields."
+[pricing.source]
+kind = "documentation"
+url = "https://docs.mistral.ai/inference/pricing"
+read_on = 2026-10-17
+quote = "Mistral Large 4 … $0.68 (sale; original $1.36)"

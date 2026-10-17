@@ -1,0 +1,13 @@
+id = "fireworks"
+name = "Fireworks AI"
+env_vars = ["FIREWORKS_API_KEY"]
+config_names = ["fireworks-api-key", "fireworksApiKey", "fireworks_api_key"]
+usage_url = "https://fireworks.ai/account/billing"
+index_ids = ["fireworks"]
+
+[source]
+kind = "documentation"
+url = "https://docs.fireworks.ai/getting-started/quickstart"
+read_on = 2026-10-17
+quote = "export FIREWORKS_API_KEY=\"your_api_key_here\""
+note = "the `fw_` prefix is unverified: no shape"

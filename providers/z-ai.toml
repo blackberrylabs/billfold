@@ -1,0 +1,14 @@
+id = "z-ai"
+name = "Z.ai (Zhipu, GLM)"
+env_vars = ["ZAI_API_KEY", "ZHIPUAI_API_KEY", "ZHIPU_API_KEY", "GLM_API_KEY"]
+config_names = ["zai-api-key", "zhipu-api-key", "zhipuApiKey", "glm-api-key"]
+usage_url = "https://z.ai/manage-apikey/billing"
+index_ids = ["z-ai"]
+id_prefixes = ["z-ai/", "zai-org/"]
+
+[source]
+kind = "documentation"
+url = "https://docs.z.ai/guides/overview/quick-start"
+read_on = 2026-10-17
+quote = "-H \"Authorization: Bearer YOUR_API_KEY\""
+note = "variable name and key format NOT DOCUMENTED on that page; the names above are the ones SDKs and tools use (observed)"

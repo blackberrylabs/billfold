@@ -1,0 +1,21 @@
+id = "perplexity"
+name = "Perplexity"
+env_vars = ["PERPLEXITY_API_KEY"]
+config_names = ["perplexity-api-key", "perplexityApiKey", "perplexity_api_key"]
+usage_url = "https://www.perplexity.ai/settings/api"
+index_ids = ["perplexity"]
+
+[source]
+kind = "documentation"
+url = "https://docs.perplexity.ai/guides/getting-started"
+read_on = 2026-10-17
+quote = "-H \"Authorization: Bearer $PERPLEXITY_API_KEY\""
+
+[[shapes]]
+regex = "^pplx-[A-Za-z0-9]{48}$"
+[shapes.source]
+kind = "observed"
+url = "https://github.com/gitleaks/gitleaks/blob/master/cmd/generate/config/rules/perplexity.go"
+read_on = 2026-10-17
+quote = "\\b(pplx-[a-zA-Z0-9]{48})"
+note = "b58d3f1 L16"

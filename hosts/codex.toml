@@ -1,0 +1,65 @@
+# Billfold host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "codex"
+name = "Codex CLI"
+vendor = "OpenAI"
+kind = "cli"
+status = "active"
+check = "codex login status; codex, then /status (remaining limits)"
+
+[detect]
+paths = ["~/.codex"]
+binaries = ["codex"]
+
+[keyring]
+service = "Codex Auth"
+[keyring.source]
+kind = "source-code"
+url = "https://github.com/openai/codex/blob/main/codex-rs/login/src/auth/storage.rs"
+read_on = 2026-10-17
+quote = "const KEYRING_SERVICE: &str = \"Codex Auth\";"
+note = "ce0323f L243; used when `cli_auth_credentials_store` is `keyring` or `auto`; `file` is the default"
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "credential"
+credit = "mixed"
+provider = "openai"
+path.any = "~/.codex/auth.json"
+fields = { mode = "auth_mode", mode_subscription = ["chatgpt", "chatgptAuthTokens"], mode_api_key = ["apikey", "api_key"], api_key = "OPENAI_API_KEY", jwt = "tokens.id_token", jwt_claims = { plan = "https://api\\.openai\\.com/auth.chatgpt_plan_type", email = "email", account = "https://api\\.openai\\.com/auth.chatgpt_account_id", expires = "exp" } }
+secrets = ["OPENAI_API_KEY", "tokens.id_token", "tokens.access_token", "tokens.refresh_token", "personal_access_token", "bedrock_api_key"]
+note = "CODEX_HOME relocates the directory. The id_token is a JWT whose payload carries the plan and the account: decoded locally, never shown."
+[locations.source]
+kind = "documentation"
+url = "https://learn.chatgpt.com/docs/auth.md"
+read_on = 2026-10-17
+quote = "Codex caches login details locally in a plaintext file at `~/.codex/auth.json` or in your OS-specific credential store."
+note = "fields: codex-rs/login/src/auth/storage.rs L47-69 `AuthDotJson { auth_mode, OPENAI_API_KEY, tokens, last_refresh, … }`; claims: token_data.rs L72-99 `chatgpt_plan_type`, `chatgpt_account_id`, `email`, `exp`; warning: \"treat `~/.codex/auth.json` like a password\""
+
+[[locations]]
+scope = "user"
+format = "toml"
+kind = "settings"
+provider = "openai"
+path.any = "~/.codex/config.toml"
+fields = { model = "model", provider = "model_provider" }
+[locations.source]
+kind = "documentation"
+url = "https://learn.chatgpt.com/docs/config-file/config-advanced.md"
+read_on = 2026-10-17
+quote = "`cli_auth_credentials_store` … `file` stores credentials in `auth.json` under `CODEX_HOME` (defaults to `~/.codex`)."
+
+[[locations]]
+scope = "user"
+format = "jsonl"
+kind = "usage"
+path.any = ["~/.codex/sessions/**/rollout-*.jsonl", "~/.codex/sessions/**/rollout-*.jsonl.zst", "~/.codex/archived_sessions/**/rollout-*.jsonl", "~/.codex/archived_sessions/**/rollout-*.jsonl.zst"]
+usage = { reader = "codex-jsonl", cost_by_host = false, quota = true }
+note = "event_msg / payload.type = token_count: info.total_token_usage (cumulative) and info.last_token_usage (delta) with input_tokens, cached_input_tokens, cache_write_input_tokens, output_tokens, reasoning_output_tokens (included in output); rate_limits {primary, secondary: {used_percent, window_minutes, resets_at}, plan_type}; model from turn_context; files older than 7 days are rewritten as .jsonl.zst; no age-based deletion found."
+[locations.source]
+kind = "source-code"
+url = "https://github.com/openai/codex/blob/main/codex-rs/rollout/src/recorder.rs"
+read_on = 2026-10-17
+quote = "format!(\"rollout-{timestamp}-{}.jsonl\", self.thread_id)"
+note = "ce0323f: rollout_file_name.rs L67; policy.rs L133 persists `EventMsg::TokenCount`; protocol.rs L2368-2383 `TokenUsage`, L2470-2528 `TokenCountEvent`/`RateLimitSnapshot`; compression.rs L364 `MIN_ROLLOUT_AGE` 7 days"

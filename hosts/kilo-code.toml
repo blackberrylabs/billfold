@@ -1,0 +1,57 @@
+# Billfold host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "kilo-code"
+name = "Kilo Code"
+vendor = "Kilo"
+kind = "cli"
+status = "active"
+check = "kilo auth"
+
+[detect]
+paths = ["~/.local/share/kilo", "~/.config/kilo", "~/.kilocode"]
+binaries = ["kilo"]
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "credential"
+credit = "mixed"
+path.any = "~/.local/share/kilo/auth.json"
+fields = { providers_table = "" }
+secrets = ["*.access", "*.refresh", "*.key", "*.token"]
+note = "Keyed by provider id (`kilo` for the Kilo account): {type: oauth {refresh, access, expires, accountId} | api {key} | wellknown {key, token}}."
+[locations.source]
+kind = "source-code"
+url = "https://github.com/Kilo-Org/kilocode/blob/main/packages/opencode/src/auth/index.ts"
+read_on = 2026-10-17
+quote = "path.join(Global.Path.data, \"auth.json\")"
+note = "1552877 L11, written with mode 0o600 (L81, L90); schema L16-33; XDG data dir `kilo` (core/src/global.ts L12-22)"
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "credential"
+credit = "mixed"
+legacy = true
+path.any = "~/.kilocode/cli/config.json"
+note = "Migrated to ~/.local/share/kilo/auth.json."
+[locations.source]
+kind = "source-code"
+url = "https://github.com/Kilo-Org/kilocode/blob/main/packages/opencode/src/auth/index.ts"
+read_on = 2026-10-17
+quote = "~/.kilocode/cli/config.json"
+note = "1552877 L115, legacy migration"
+
+[[locations]]
+scope = "user"
+format = "sqlite"
+kind = "usage"
+path.any = ["~/.local/share/kilo/kilo.db", "~/.local/share/kilo/kilo-*.db"]
+usage = { reader = "kilo-sqlite", cost_by_host = true }
+note = "Table message(id, session_id, time_created, data json) with the OpenCode shape: modelID, providerID, tokens, cost."
+[locations.source]
+kind = "source-code"
+url = "https://github.com/Kilo-Org/kilocode/blob/main/packages/core/src/session/sql.ts"
+read_on = 2026-10-17
+quote = "message(id, session_id, time_created, data json)"
+note = "1552877 L73-90; db.ts L35-46 `kilo.db` or `kilo-<channel>.db`"

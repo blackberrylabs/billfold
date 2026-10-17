@@ -1,0 +1,84 @@
+# Billfold host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "opencode"
+name = "OpenCode"
+vendor = "Anomaly"
+kind = "cli"
+status = "active"
+check = "opencode auth list"
+
+[detect]
+paths = ["~/.config/opencode", "~/.local/share/opencode"]
+binaries = ["opencode"]
+
+[[locations]]
+scope = "user"
+format = "sqlite"
+kind = "credential"
+credit = "mixed"
+path.any = ["~/.local/share/opencode/opencode.db", "~/.local/share/opencode/opencode-*.db"]
+fields = { providers_table = "credential" }
+note = "Table `credential(id, integration_id, label, value json, connector_id, method_id, active)`; value.type `oauth` {refresh, access, expires, metadata} | `key` {key} | `external`. Read with a database driver, read-only; only integration_id, type, expires and active are kept."
+[locations.source]
+kind = "source-code"
+url = "https://github.com/sst/opencode/blob/dev/packages/core/src/credential/sql.ts"
+read_on = 2026-10-17
+quote = "id, integration_id, label, value (json), connector_id, method_id, active"
+note = "a49f179 L5-14; database-path.ts L5-12 `opencode.db` or `opencode-<channel>.db`, env OPENCODE_DB; migration 20260805200742 imports the legacy auth.json"
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "credential"
+credit = "mixed"
+legacy = true
+path.any = "~/.local/share/opencode/auth.json"
+fields = { providers_table = "" }
+secrets = ["*.access", "*.refresh", "*.key", "*.token"]
+note = "Legacy store the documentation still names; each top-level key is a provider id with {type: oauth|api|wellknown, …}."
+[locations.source]
+kind = "documentation"
+url = "https://opencode.ai/docs/providers/"
+read_on = 2026-10-17
+quote = "they are stored in `~/.local/share/opencode/auth.json`"
+note = "imported as legacy by migration/20260805200742_import_legacy_credentials.ts L39 (a49f179)"
+
+[[locations]]
+scope = "user"
+format = "jsonc"
+kind = "settings"
+path.any = "~/.config/opencode/opencode.json"
+fields = { model = "model" }
+keys_in = ["provider.*.options.apiKey"]
+note = "`{env:VAR}` and `{file:path}` are references the host expands; a literal apiKey is a key in clear."
+[locations.source]
+kind = "documentation"
+url = "https://opencode.ai/docs/config/"
+read_on = 2026-10-17
+quote = "Use `{env:VARIABLE_NAME}` to substitute environment variables"
+
+[[locations]]
+scope = "project"
+format = "jsonc"
+kind = "settings"
+path.any = "opencode.json"
+keys_in = ["provider.*.options.apiKey"]
+[locations.source]
+kind = "documentation"
+url = "https://opencode.ai/docs/config/"
+read_on = 2026-10-17
+quote = "Use `{file:path/to/file}` to substitute the contents of a file"
+
+[[locations]]
+scope = "user"
+format = "sqlite"
+kind = "usage"
+path.any = ["~/.local/share/opencode/opencode.db", "~/.local/share/opencode/opencode-*.db"]
+usage = { reader = "opencode-sqlite", cost_by_host = true }
+note = "session_message(id, session_id, type, seq, time_created, data json): assistant data carries modelID, providerID, cost, tokens.{input,output,reasoning,cache.read,cache.write}; fork rows share the parent's seq up to fork_boundary and are skipped; cost is 0 on the ChatGPT plan plugin."
+[locations.source]
+kind = "source-code"
+url = "https://github.com/sst/opencode/blob/dev/packages/core/src/session/sql.ts"
+read_on = 2026-10-17
+quote = "session_message(id, session_id, type, seq, time_created, data json)"
+note = "a49f179 L22-98; schema/src/v1/session.ts L453-485; usage.ts L22-36 calculateCost; chatgpt.ts L325 `draft.cost = []`"

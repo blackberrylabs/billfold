@@ -1,0 +1,86 @@
+# Billfold host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "copilot"
+name = "GitHub Copilot"
+vendor = "GitHub"
+kind = "cli"
+status = "active"
+application = "GitHub Copilot"
+check = "copilot, then /user and /usage; gh auth status"
+usage_url = "https://github.com/settings/copilot/features"
+no_usage_log = "The VS Code extension keeps no per-request token log; only the CLI writes session-state events. The plan (`copilot_plan`, `sku`) is fetched from the token endpoint at run time and never stored locally."
+
+[detect]
+paths = ["~/.copilot", "~/.config/github-copilot", "~/.vscode/extensions/github.copilot-chat-*"]
+binaries = ["copilot", "gh"]
+
+[keyring]
+service = "copilot-cli"
+[keyring.source]
+kind = "documentation"
+url = "https://docs.github.com/en/copilot/how-tos/copilot-cli/set-up-copilot-cli/authenticate-copilot-cli"
+read_on = 2026-10-17
+quote = "By default, the CLI stores your OAuth token in your operating system's keychain under the service name `copilot-cli`"
+note = "gh: service `gh:<host>` (cli/cli internal/config/config.go L577-579); VS Code: the GitHub session in VS Code's keyring"
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "credential"
+credit = "keyring-fallback"
+provider = "github"
+path.any = "~/.copilot/config.json"
+note = "Plaintext fallback when the keychain is unavailable; field names not documented. COPILOT_HOME replaces the directory."
+[locations.source]
+kind = "documentation"
+url = "https://docs.github.com/en/copilot/how-tos/copilot-cli/set-up-copilot-cli/authenticate-copilot-cli"
+read_on = 2026-10-17
+quote = "the CLI prompts you to store the token in a plaintext configuration file at `~/.copilot/config.json`"
+
+[[locations]]
+scope = "user"
+format = "yaml"
+kind = "credential"
+credit = "keyring-fallback"
+provider = "github"
+path.any = "~/.config/gh/hosts.yml"
+fields = { providers_table = "" }
+secrets = ["*.oauth_token", "*.users.*.oauth_token"]
+note = "gh's plaintext fallback (or `--insecure-storage`): host → user, users, git_protocol; oauth_token only when stored insecurely."
+[locations.source]
+kind = "documentation"
+url = "https://cli.github.com/manual/gh_auth_login"
+read_on = 2026-10-17
+quote = "If a credential store is not found … gh will fallback to writing the token to a plain text file."
+note = "keys hosts/oauth_token/user/users (cli/cli internal/config/config.go L25-40); status.go L380 `hosts.yml`"
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "credential"
+credit = "subscription"
+provider = "github"
+path.any = ["~/.config/github-copilot/apps.json", "~/.config/github-copilot/hosts.json"]
+fields = { providers_table = "" }
+secrets = ["*.oauth_token"]
+note = "Written by the Copilot language server (JetBrains, Neovim); observed, not documented by GitHub."
+[locations.source]
+kind = "observed"
+url = "https://aider.chat/docs/llms/github.html"
+read_on = 2026-10-17
+quote = "~/.config/github-copilot/apps.json"
+note = "\"Copy the `oauth_token` value\"; \"tokens created by the Neovim copilot.lua plugin (old `hosts.json`)\""
+
+[[locations]]
+scope = "user"
+format = "jsonl"
+kind = "usage"
+path.any = "~/.copilot/session-state/*/events.jsonl"
+usage = { reader = "copilot-jsonl" }
+note = "`session.shutdown` events carry data.modelMetrics.<model>.usage.{inputTokens,outputTokens,cacheReadTokens,cacheWriteTokens,reasoningTokens} cumulative per session and model (inputTokens includes both cache buckets) and totalNanoAiu (1 AIU = $0.01 credit); a resumed session writes another shutdown → subtract the previous one."
+[locations.source]
+kind = "documentation"
+url = "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference"
+read_on = 2026-10-17
+quote = "Each session directory stores an event log (`events.jsonl`) and workspace artifacts"
+note = "token shape: ccusage copilot/src/parser.rs L164-226 and docs/guide/copilot (\"`inputTokens` includes both cache buckets\", \"One AIU is one GitHub AI credit, billed at $0.01\")"

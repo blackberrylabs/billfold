@@ -1,0 +1,68 @@
+# Billfold host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "aider"
+name = "Aider"
+vendor = "Aider AI"
+kind = "cli"
+status = "active"
+
+[detect]
+paths = ["~/.aider", "~/.aider.conf.yml"]
+binaries = ["aider"]
+
+[[locations]]
+scope = "user"
+format = "yaml"
+kind = "settings"
+path.any = "~/.aider.conf.yml"
+fields = { model = "model" }
+keys_in = ["openai-api-key", "anthropic-api-key", "api-key"]
+note = "`api-key` is a list of `provider=key` strings."
+[locations.source]
+kind = "documentation"
+url = "https://aider.chat/docs/config/aider_conf.html"
+read_on = 2026-10-17
+quote = "You can only put OpenAI and Anthropic API keys in the YAML config file"
+note = "looked up in \"Your home directory. The root of your git repo. The current directory.\"; `api-key: provider=<key>` \"has the effect of setting the environment variable `PROVIDER_API_KEY=<key>`\" (api-keys.html)"
+
+[[locations]]
+scope = "project"
+format = "yaml"
+kind = "settings"
+path.any = ".aider.conf.yml"
+fields = { model = "model" }
+keys_in = ["openai-api-key", "anthropic-api-key", "api-key"]
+[locations.source]
+kind = "documentation"
+url = "https://aider.chat/docs/config/aider_conf.html"
+read_on = 2026-10-17
+quote = "Files loaded last will take priority."
+
+[[locations]]
+scope = "user"
+format = "dotenv"
+kind = "credential"
+credit = "api-key"
+provider = "openrouter"
+path.any = "~/.aider/oauth-keys.env"
+keys_in = [""]
+[locations.source]
+kind = "source-code"
+url = "https://github.com/Aider-AI/aider/blob/main/aider/onboarding.py"
+read_on = 2026-10-17
+quote = "OPENROUTER_API_KEY=\"…\""
+note = "5dc9490 L360-366: the OpenRouter OAuth key is appended to ~/.aider/oauth-keys.env"
+
+[[locations]]
+scope = "project"
+format = "markdown"
+kind = "usage"
+path.any = ".aider.chat.history.md"
+usage = { reader = "aider-markdown", cost_by_host = true }
+note = "Blockquote lines `> Tokens: 12k sent, 1.2k received. Cost: $x message, $y session.` — counts are rounded (5.2k, 12k); the model comes from `Model: <name> with …` announcements; no session id."
+[locations.source]
+kind = "source-code"
+url = "https://github.com/Aider-AI/aider/blob/main/aider/coders/base_coder.py"
+read_on = 2026-10-17
+quote = "Cost: ${msg} message, ${total} session."
+note = "5dc9490 L2023-2063; history file args.py L274-287; format_tokens utils.py L279-285"

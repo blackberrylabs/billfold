@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Billfold: a dark tile, a wallet with two cards showing (the accounts and keys it
+       holds), its flap closed by a green clasp — read, never opened wider — and an orange
+       token mark counting what left it. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2d3440"/>
+      <stop offset="1" stop-color="#1b2029"/>
+    </linearGradient>
+  </defs>
+  <rect x="32" y="32" width="448" height="448" rx="96" fill="url(#bg)"/>
+  <!-- the cards inside -->
+  <rect x="150" y="150" width="212" height="60" rx="14" fill="#f4f6f9" fill-opacity="0.55"/>
+  <rect x="140" y="178" width="232" height="60" rx="14" fill="#f4f6f9" fill-opacity="0.8"/>
+  <!-- the wallet body -->
+  <rect x="116" y="212" width="280" height="176" rx="28" fill="#f4f6f9"/>
+  <!-- the flap -->
+  <path d="M116 272 H396 v64 a28 28 0 0 1 -28 28 H144 a28 28 0 0 1 -28 -28 Z" fill="#dfe4ea"/>
+  <!-- the clasp: green, it stays closed -->
+  <circle cx="356" cy="304" r="24" fill="#2fa32f"/>
+  <!-- the tokens counted: three orange marks -->
+  <g fill="#eb6834">
+    <circle cx="160" cy="112" r="12"/>
+    <circle cx="196" cy="100" r="12"/>
+    <circle cx="232" cy="112" r="12"/>
+  </g>
+</svg>

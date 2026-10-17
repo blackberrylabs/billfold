@@ -1,0 +1,57 @@
+id = "openai"
+name = "OpenAI"
+env_vars = ["OPENAI_API_KEY", "OPENAI_ADMIN_KEY"]
+config_names = ["openai-api-key", "openaiApiKey", "openai_api_key", "openAiApiKey", "openAiNativeApiKey"]
+usage_url = "https://platform.openai.com/usage"
+index_ids = ["openai"]
+aliases = [["gpt-4.1-2025-04-14", "gpt-4.1"]]
+
+[source]
+kind = "documentation"
+url = "https://developers.openai.com/api/reference/overview"
+read_on = 2026-10-17
+quote = "Provide API credentials with HTTP Bearer authentication."
+note = "`-H \"Authorization: Bearer $OPENAI_API_KEY\"`; help.openai.com 4936850: \"For security, a full secret key is only shown when you create it.\""
+
+[[shapes]]
+regex = "^sk-(?:proj|svcacct|admin|service)-[A-Za-z0-9_-]{20,}T3BlbkFJ[A-Za-z0-9_-]{20,}$|^sk-[A-Za-z0-9]{20}T3BlbkFJ[A-Za-z0-9]{20}$"
+[shapes.source]
+kind = "observed"
+url = "https://github.com/gitleaks/gitleaks/blob/master/cmd/generate/config/rules/openai.go"
+read_on = 2026-10-17
+quote = "sk-(?:proj|svcacct|admin)-(?:[A-Za-z0-9_-]{74}|[A-Za-z0-9_-]{58})T3BlbkFJ(?:[A-Za-z0-9_-]{74}|[A-Za-z0-9_-]{58})\\b|sk-[a-zA-Z0-9]{20}T3BlbkFJ[a-zA-Z0-9]{20}"
+note = "b58d3f1 L14; trufflehog openai.go:41; the marker `T3BlbkFJ` (base64 of \"OpenAI\") is the discriminant; prefixes `sk-proj-`/`sk-svcacct-` are NOT DOCUMENTED by OpenAI"
+
+[pricing]
+reasoning_as_output = true
+note = "Cached input is in the index. Long-context threshold NOT DOCUMENTED on the price page (third-party tables: 272K); the index stores the short-context tier (`le_272k`). Batch/Flex −50 %, Fast ×2, Ultrafast ×6: noted, not applied."
+[[pricing.long_context]]
+models = ["gpt-6.1-sol"]
+above = 272000
+input = 4.0
+output = 15.0
+cache_read = 0.20
+[[pricing.long_context]]
+models = ["gpt-6-astra"]
+above = 272000
+input = 20.0
+output = 75.0
+cache_read = 2.0
+[[pricing.long_context]]
+models = ["gpt-6-luna"]
+above = 272000
+input = 0.20
+output = 0.75
+cache_read = 0.02
+[[pricing.long_context]]
+models = ["gpt-5.6-sol"]
+above = 272000
+input = 8.0
+output = 30.0
+cache_read = 0.80
+[pricing.source]
+kind = "documentation"
+url = "https://developers.openai.com/api/docs/pricing"
+read_on = 2026-10-17
+quote = "gpt-6.1-sol $2.00 | $0.10 | $10.00"
+note = "long context \"$4.00 | $0.20 | $15.00\"; gpt-6-astra \"$10.00 | $1.00 | $50.00\" / \"$20.00 | $2.00 | $75.00\"; gpt-6-luna \"$0.10 | $0.01 | $0.50\" / \"$0.20 | $0.02 | $0.75\"; gpt-5.6-sol \"$4.00 | $0.40 | $20.00\" / \"$8.00 | $0.80 | $30.00\"; reasoning guide: \"billed as output tokens\"; threshold 272K from OpenRouter `min_prompt_tokens` (observed)"

@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=Billfold
+GenericName=AI accounts, keys and token spend
+GenericName[fr]=Comptes, clés et consommation IA
+Comment=What this machine spends on AI: the accounts it is wired to, the keys it holds, the tokens it burned. Reads, never writes.
+Comment[fr]=Ce que ce poste dépense en IA : les comptes branchés, les clés, les jetons brûlés. Lit, n'écrit jamais.
+Exec=billfold-app
+Icon=billfold
+Terminal=false
+Categories=Development;Utility;
+Keywords=ai agents;api keys;tokens;usage;cost;claude code;codex;cursor;
+StartupWMClass=billfold-app

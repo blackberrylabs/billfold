@@ -1,0 +1,22 @@
+id = "huggingface"
+name = "Hugging Face"
+env_vars = ["HF_TOKEN", "HUGGING_FACE_HUB_TOKEN", "HF_TOKEN_PATH"]
+config_names = ["huggingface-api-key", "huggingFaceApiKey", "hf-token"]
+usage_url = "https://huggingface.co/settings/billing"
+index_ids = []
+
+[source]
+kind = "documentation"
+url = "https://huggingface.co/docs/huggingface_hub/package_reference/environment_variables"
+read_on = 2026-10-17
+quote = "If set, this value will overwrite the token stored on the machine (in either `$HF_TOKEN_PATH` or `\"$HF_HOME/token\"` if the former is not set)"
+note = "`HF_TOKEN_PATH` \"Defaults to `\"$HF_HOME/token\"` (e.g. `~/.cache/huggingface/token` by default)\"; `HUGGING_FACE_HUB_TOKEN` deprecated"
+
+[[shapes]]
+regex = "^(?:hf_|api_org_)[A-Za-z0-9]{34}$"
+[shapes.source]
+kind = "observed"
+url = "https://github.com/trufflesecurity/trufflehog/blob/main/pkg/detectors/huggingface/huggingface.go"
+read_on = 2026-10-17
+quote = "\\b(?:hf_|api_org_)[a-zA-Z0-9]{34}\\b"
+note = "31d7303 L27; huggingface.co/docs/hub/security-tokens shows `access_token = \"hf_...\"`"

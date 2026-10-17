@@ -1,0 +1,13 @@
+id = "azure"
+name = "Azure OpenAI"
+env_vars = ["AZURE_OPENAI_API_KEY", "AZURE_OPENAI_AUTH_TOKEN", "AZURE_OPENAI_ENDPOINT"]
+config_names = ["azure-api-key", "azureApiKey", "azureOpenAiApiKey", "azure_openai_api_key"]
+usage_url = "https://portal.azure.com/"
+index_ids = ["azure"]
+
+[source]
+kind = "documentation"
+url = "https://learn.microsoft.com/en-us/azure/ai-foundry/openai/reference"
+read_on = 2026-10-17
+quote = "all API requests must include the API Key in the `api-key` HTTP header"
+note = "quickstart: `api_key=os.getenv(\"AZURE_OPENAI_API_KEY\")`; a 32-hex key is indistinguishable from any hex blob without the endpoint host nearby (trufflehog azure_openai.go:33-34): no shape, name only"

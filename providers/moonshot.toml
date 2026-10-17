@@ -1,0 +1,24 @@
+id = "moonshot"
+name = "Moonshot (Kimi)"
+env_vars = ["MOONSHOT_API_KEY", "KIMI_API_KEY"]
+config_names = ["moonshot-api-key", "moonshotApiKey", "kimi-api-key"]
+usage_url = "https://platform.kimi.ai/console"
+index_ids = ["moonshot"]
+id_prefixes = ["moonshotai/"]
+
+[source]
+kind = "documentation"
+url = "https://platform.kimi.ai/docs/overview.md"
+read_on = 2026-10-17
+quote = "export MOONSHOT_API_KEY=\"YOUR_KIMI_API_KEY\""
+note = "key format NOT DOCUMENTED"
+
+[pricing]
+cache_write_5m = 1.0
+cache_write_1h = 2.0
+[pricing.source]
+kind = "documentation"
+url = "https://platform.kimi.ai/docs/pricing/chat"
+read_on = 2026-10-17
+quote = "kimi-k3 | $0.30 cached | $3.00 | $15.00 | Cache Write (5min / 1h) $3.00 / $6.00"
+note = "cache write 5 min = 1× input, 1 h = 2× input, for kimi-k3; \"Input that hits the cache within its lifetime is billed only at the Cached Input Price.\""

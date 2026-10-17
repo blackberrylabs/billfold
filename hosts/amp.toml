@@ -1,0 +1,61 @@
+# Billfold host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "amp"
+name = "Amp"
+vendor = "Sourcegraph"
+kind = "cli"
+status = "active"
+usage_url = "https://ampcode.com/settings"
+
+[detect]
+paths = ["~/.config/amp", "~/.local/share/amp"]
+binaries = ["amp"]
+
+[keyring]
+service = "amp (native secret storage, migrating from secrets.json)"
+[keyring.source]
+kind = "observed"
+url = "https://www.npmjs.com/package/@ampcode/cli-linux-x64"
+read_on = 2026-10-17
+quote = "Migrating secrets from file storage to native secret storage..."
+note = "strings of the 0.0.1792238457 binary: `secrets.json`, `secrets.file`, `secrets.native`, `@napi-rs/keyring-linux-x64-gnu`; not documented"
+
+[[locations]]
+scope = "user"
+format = "jsonc"
+kind = "settings"
+path.any = ["~/.config/amp/settings.json", "~/.config/amp/settings.jsonc"]
+[locations.source]
+kind = "documentation"
+url = "https://ampcode.com/docs/cli/settings"
+read_on = 2026-10-17
+quote = "Linux: `~/.config/amp/settings.json` or `~/.config/amp/settings.jsonc`"
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "credential"
+credit = "keyring-fallback"
+provider = "amp"
+path.any = "~/.local/share/amp/secrets.json"
+keys_in = [""]
+note = "Inferred from binary strings only (keys like `apiKey@<server-url>`); presence and masked values."
+[locations.source]
+kind = "observed"
+url = "https://www.npmjs.com/package/@ampcode/cli-linux-x64"
+read_on = 2026-10-17
+quote = "secrets.json"
+note = "key pattern `^(.+)@(.+)$`, `amp.cli.account`"
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "usage"
+path.any = "~/.local/share/amp/threads/T-*.json"
+usage = { reader = "amp-json" }
+note = "messages[].usage carries model, timestamp, inputTokens, outputTokens, cacheCreationInputTokens, cacheReadInputTokens, totalTokens; legacy usageLedger.events[] with credits. Documented by ccusage only."
+[locations.source]
+kind = "observed"
+url = "https://github.com/ryoppippi/ccusage/blob/main/rust/adapters/amp/src/README.md"
+read_on = 2026-10-17
+quote = "${AMP_DATA_DIR:-~/.local/share/amp}/threads/T-{uuid}.json"

@@ -1,0 +1,64 @@
+# Billfold host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "goose"
+name = "Goose"
+vendor = "Block"
+kind = "cli"
+status = "active"
+
+[detect]
+paths = ["~/.config/goose"]
+binaries = ["goose"]
+
+[keyring]
+service = "goose"
+[keyring.source]
+kind = "source-code"
+url = "https://github.com/block/goose/blob/main/crates/goose/src/config/base.rs"
+read_on = 2026-10-17
+quote = "KEYRING_SERVICE = \"goose\""
+note = "bfcc6ee L32-34, one Secret Service item (`goose`/`secrets`) holding all secrets; file fallback when GOOSE_DISABLE_KEYRING or no keyring"
+
+[[locations]]
+scope = "user"
+format = "yaml"
+kind = "settings"
+path.linux = "~/.config/goose/config.yaml"
+path.macos = "~/.config/goose/config.yaml"
+path.windows = "%APPDATA%/Block/goose/config/config.yaml"
+fields = { provider = "active_provider" }
+[locations.source]
+kind = "documentation"
+url = "https://block.github.io/goose/docs/guides/config-file/"
+read_on = 2026-10-17
+quote = "goose does not read provider API keys from `config.yaml`"
+note = "provider block `active_provider: anthropic` / `providers: { anthropic: { enabled, model, configured } }`"
+
+[[locations]]
+scope = "user"
+format = "yaml"
+kind = "credential"
+credit = "keyring-fallback"
+path.any = "~/.config/goose/secrets.yaml"
+keys_in = [""]
+note = "Written only when the keyring is disabled or unavailable; every value is a key in clear."
+[locations.source]
+kind = "documentation"
+url = "https://block.github.io/goose/docs/guides/config-file/"
+read_on = 2026-10-17
+quote = "If keyring is disabled, secrets are stored in a separate secrets.yaml file."
+note = "base.rs L398 `config_dir.join(\"secrets.yaml\")`"
+
+[[locations]]
+scope = "user"
+format = "sqlite"
+kind = "usage"
+path.any = "~/.local/share/goose/sessions/sessions.db"
+usage = { reader = "goose-sqlite", cost_by_host = true }
+note = "Table usage_ledger(id, session_id, created_timestamp, model, input_tokens, output_tokens, total_tokens, cache_read_tokens, cache_write_tokens, cost, cost_source, is_compaction); sessions(provider_name, working_dir …)."
+[locations.source]
+kind = "source-code"
+url = "https://github.com/block/goose/blob/main/crates/goose/src/session/session_manager.rs"
+read_on = 2026-10-17
+quote = "DB_NAME = \"sessions.db\""
+note = "bfcc6ee L34; tables L1141-1213; canonical_cost.rs L45-56 cost_source provider_reported | estimated"

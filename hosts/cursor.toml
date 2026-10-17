@@ -1,0 +1,48 @@
+# Billfold host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "cursor"
+name = "Cursor"
+vendor = "Anysphere"
+kind = "ide"
+status = "active"
+check = "agent status"
+usage_url = "https://cursor.com/dashboard"
+no_usage_log = "Cursor keeps no per-request token counts on disk; its local store holds chat text and the auth token. Usage and token breakdowns are on the web dashboard."
+
+[detect]
+paths = ["~/.config/Cursor", "~/.cursor"]
+binaries = ["cursor", "agent"]
+
+[[locations]]
+scope = "user"
+format = "sqlite"
+kind = "credential"
+credit = "subscription"
+provider = "cursor"
+path.linux = "~/.config/Cursor/User/globalStorage/state.vscdb"
+path.macos = "~/Library/Application Support/Cursor/User/globalStorage/state.vscdb"
+path.windows = "%APPDATA%/Cursor/User/globalStorage/state.vscdb"
+sqlite_kv = { table = "ItemTable", key_column = "key", value_column = "value" }
+fields = { email = "cursorAuth/cachedEmail", jwt = "cursorAuth/accessToken", jwt_claims = { expires = "exp" } }
+secrets = ["cursorAuth/accessToken", "cursorAuth/refreshToken"]
+note = "Observed by third parties; the official docs only say credentials are \"securely stored locally\". The plan is not confirmed to be stored."
+[locations.source]
+kind = "observed"
+url = "https://github.com/vypdev/cursor-accounts/blob/main/src/auth/cursorPaths.ts"
+read_on = 2026-10-17
+quote = "Reads the Cursor session from local `state.vscdb` (`cursorAuth/accessToken`, `cursorAuth/refreshToken`)"
+note = "f72d621 cursorPaths.ts L4-44 (paths), tokenReader.ts L32 `SELECT value FROM ItemTable WHERE key = '…'`; official: cursor.com/docs/cli/reference/authentication \"your credentials are securely stored locally\""
+
+[[locations]]
+scope = "user"
+format = "json"
+kind = "credential"
+credit = "subscription"
+provider = "cursor"
+path.any = "~/.cursor/cli-config.json"
+note = "CLI fallback (`authInfo.authId`), observed."
+[locations.source]
+kind = "observed"
+url = "https://raw.githubusercontent.com/miiiiiiich/agent-walker/HEAD/docs/cursor.md"
+read_on = 2026-10-17
+quote = "`~/.cursor/cli-config.json` (`authInfo.authId`)"
