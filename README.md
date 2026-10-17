@@ -87,6 +87,15 @@ rule cites its source, its date and the words it was read from (`docs/hosts.md`,
 writes and network calls, plants a key and checks it never comes out, and checks the report
 for conformance.
 
+## Part of Blackberrylabs
+
+Billfold is a module of the [Blackberrylabs](https://github.com/blackberrylabs) family —
+read-only tools that show what AI coding agents do to your machine. Want only Billfold?
+It is complete on its own. Want several? The
+[control tower](https://github.com/blackberrylabs/blackberrylabs) gathers what every
+module finds in one list, most serious first: `billfold report` is what it reads, `billfold-app --select`
+is how it opens Billfold at a finding.
+
 ## Build
 
 ```sh
