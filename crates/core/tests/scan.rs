@@ -127,13 +127,13 @@ fn fixture(home: &Path) {
             "CREATE TABLE credential(id TEXT, integration_id TEXT, label TEXT, value TEXT, connector_id TEXT, method_id TEXT, active INTEGER);
              INSERT INTO credential VALUES ('1','openai','ChatGPT','{\"type\":\"oauth\",\"access\":\"SECRET\",\"refresh\":\"SECRET\",\"expires\":1600000000000}',NULL,NULL,1);
              INSERT INTO credential VALUES ('2','deepseek','key','{\"type\":\"key\",\"key\":\"sk-SECRET\"}',NULL,NULL,1);
-             CREATE TABLE session_v2(id TEXT, directory TEXT, fork_boundary INTEGER);
+             CREATE TABLE session_v2(id TEXT, directory TEXT, fork_session_id TEXT, time_created INTEGER);
              CREATE TABLE session_message(id TEXT, session_id TEXT, type TEXT, seq INTEGER, time_created INTEGER, data TEXT);",
         )
         .unwrap();
         let t = chrono::Utc::now().timestamp_millis() - 3_600_000;
         c.execute(
-            "INSERT INTO session_v2 VALUES ('s1', ?1, NULL)",
+            "INSERT INTO session_v2 VALUES ('s1', ?1, NULL, 0)",
             [proj.display().to_string()],
         )
         .unwrap();

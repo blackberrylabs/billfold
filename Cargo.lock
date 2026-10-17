@@ -352,6 +352,7 @@ checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
 [[package]]
 name = "bbl-hostrules"
 version = "0.5.0"
+source = "git+https://github.com/blackberrylabs/bbl-hostrules?tag=v0.5.0#4f8545f94734f8cd203540d99f2ce22b7ed9744b"
 dependencies = [
  "glob",
  "regex",

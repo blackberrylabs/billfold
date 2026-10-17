@@ -43,87 +43,64 @@ fn read_opencode_one(f: &Path, since: DateTime<Utc>) -> Result<(Vec<Request>, u6
         .into_iter()
         .find(|t| conn.prepare(&format!("SELECT 1 FROM {t} LIMIT 1")).is_ok())
         .ok_or("no message table")?;
-    // sessions: directory and fork boundary when the columns exist
-    let mut dirs: std::collections::HashMap<String, (Option<String>, Option<i64>)> =
-        Default::default();
+    // sessions: directory, and for a fork the session's own creation time (rows older than
+    // it were copied from the parent — OpenCode's own stats apply the same rule)
+    let mut sessions: std::collections::HashMap<String, (Option<String>, Option<i64>)> = Default::default();
     for st in ["session_v2", "session"] {
-        if let Ok(mut s) = conn.prepare(&format!("SELECT id, directory, fork_boundary FROM {st}")) {
+        let q = format!("SELECT id, directory, fork_session_id, time_created FROM {st}");
+        if let Ok(mut s) = conn.prepare(&q) {
             if let Ok(rows) = s.query_map([], |r| {
                 Ok((
                     r.get::<_, String>(0)?,
                     r.get::<_, Option<String>>(1).ok().flatten(),
-                    r.get::<_, Option<i64>>(2).ok().flatten(),
+                    r.get::<_, Option<String>>(2).ok().flatten(),
+                    r.get::<_, Option<i64>>(3).ok().flatten(),
                 ))
             }) {
-                for (id, d, b) in rows.flatten() {
-                    dirs.insert(id, (d, b));
-                }
-            }
-            break;
-        } else if let Ok(mut s) = conn.prepare(&format!("SELECT id, directory FROM {st}")) {
-            if let Ok(rows) = s.query_map([], |r| {
-                Ok((
-                    r.get::<_, String>(0)?,
-                    r.get::<_, Option<String>>(1).ok().flatten(),
-                ))
-            }) {
-                for (id, d) in rows.flatten() {
-                    dirs.insert(id, (d, None));
+                for (id, dir, fork, created) in rows.flatten() {
+                    sessions.insert(id, (dir, fork.map(|_| created.unwrap_or(0))));
                 }
             }
             break;
         }
     }
-    let has_seq = conn
-        .prepare(&format!("SELECT seq FROM {table} LIMIT 1"))
-        .is_ok();
-    let sql = if has_seq {
-        format!("SELECT session_id, time_created, data, seq FROM {table}")
+    let has_type = conn.prepare(&format!("SELECT type FROM {table} LIMIT 1")).is_ok();
+    let sql = if has_type {
+        format!("SELECT session_id, time_created, data, type FROM {table}")
     } else {
-        format!("SELECT session_id, time_created, data, 0 FROM {table}")
+        format!("SELECT session_id, time_created, data, 'assistant' FROM {table}")
     };
     let mut stmt = conn.prepare(&sql).map_err(|e| e.to_string())?;
     let rows = stmt
-        .query_map([], |r| {
-            Ok((
-                r.get::<_, String>(0)?,
-                r.get::<_, Option<i64>>(1).ok().flatten(),
-                r.get::<_, String>(2)?,
-                r.get::<_, i64>(3).unwrap_or(0),
-            ))
-        })
+        .query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, Option<i64>>(1).ok().flatten(), r.get::<_, String>(2)?, r.get::<_, String>(3).unwrap_or_default())))
         .map_err(|e| e.to_string())?;
     let mut reqs = Vec::new();
     let mut n = 0u64;
-    for (session, created, data, seq) in rows.flatten() {
-        let Ok(v) = serde_json::from_str::<Value>(&data) else {
+    for (session, created, data, kind) in rows.flatten() {
+        if kind != "assistant" {
             continue;
-        };
+        }
+        let Ok(v) = serde_json::from_str::<Value>(&data) else { continue };
         if v.get("role").and_then(Value::as_str).unwrap_or("assistant") != "assistant" {
             continue;
         }
-        let Some(t) = v.get("tokens").filter(|x| x.is_object()) else {
-            continue;
-        };
-        let (dir, boundary) = dirs.get(&session).cloned().unwrap_or((None, None));
-        if let Some(b) = boundary {
-            if seq <= b {
+        let Some(t) = v.get("tokens").filter(|x| x.is_object()) else { continue };
+        let (dir, fork_created) = sessions.get(&session).cloned().unwrap_or((None, None));
+        if let (Some(fc), Some(c)) = (fork_created, created) {
+            if c < fc {
                 continue; // copied from the parent session by a fork
             }
         }
-        let when = ms(v
-            .get("time")
-            .and_then(|x| x.get("created"))
-            .and_then(Value::as_i64))
-        .or_else(|| ms(created));
+        let when = ms(v.get("time").and_then(|x| x.get("created")).and_then(Value::as_i64)).or_else(|| ms(created));
         if !in_window(when, since) {
             continue;
         }
-        let provider = str_at(&v, "providerID");
+        let provider = str_at(&v, "providerID").or_else(|| str_at(&v, "model.providerID"));
+        let model = str_at(&v, "modelID").or_else(|| str_at(&v, "model.id")).or_else(|| str_at(&v, "model.modelID")).unwrap_or_else(|| "unknown".into());
         let cost = v.get("cost").and_then(Value::as_f64);
         n += 1;
         reqs.push(Request {
-            model: str_at(&v, "modelID").unwrap_or_else(|| "unknown".into()),
+            model,
             when,
             tokens: Tokens {
                 input: u64_at(t, "input"),
@@ -138,11 +115,7 @@ fn read_opencode_one(f: &Path, since: DateTime<Utc>) -> Result<(Vec<Request>, u6
             host_cost_usd: cost,
             credit_hint: match (provider.as_deref(), cost) {
                 // the ChatGPT-plan plugin writes no cost: tokens are included in the plan
-                (Some("openai"), Some(c))
-                    if c == 0.0 && t.get("input").and_then(Value::as_u64).unwrap_or(0) > 0 =>
-                {
-                    Some(Credit::Subscription { plan: None })
-                }
+                (Some("openai"), Some(c)) if c == 0.0 && t.get("input").and_then(Value::as_u64).unwrap_or(0) > 0 => Some(Credit::Subscription { plan: None }),
                 _ => None,
             },
             provider_hint: provider.map(|p| crate::wiring::normalise_provider(&p)),
@@ -336,18 +309,20 @@ mod tests {
         let f = tmp.path().join("opencode.db");
         let c = rusqlite::Connection::open(&f).unwrap();
         c.execute_batch(
-            "CREATE TABLE session_v2(id TEXT, directory TEXT, fork_boundary INTEGER);
+            "CREATE TABLE session_v2(id TEXT, directory TEXT, fork_session_id TEXT, time_created INTEGER);
              CREATE TABLE session_message(id TEXT, session_id TEXT, type TEXT, seq INTEGER, time_created INTEGER, data TEXT);
-             INSERT INTO session_v2 VALUES ('s1','/home/me/p',NULL),('s2','/home/me/p',1);
+             INSERT INTO session_v2 VALUES ('s1','/home/me/p',NULL,1792281600000),('s2','/home/me/p','s1',1792281601500);
              INSERT INTO session_message VALUES ('m1','s1','assistant',1,1792281600000,'{\"role\":\"assistant\",\"modelID\":\"claude-sonnet-5-5\",\"providerID\":\"anthropic\",\"cost\":0.01,\"tokens\":{\"input\":100,\"output\":10,\"reasoning\":0,\"cache\":{\"read\":50,\"write\":20}},\"time\":{\"created\":1792281600000}}');
              INSERT INTO session_message VALUES ('m2','s2','assistant',1,1792281601000,'{\"role\":\"assistant\",\"modelID\":\"claude-sonnet-5-5\",\"providerID\":\"anthropic\",\"cost\":0.01,\"tokens\":{\"input\":100,\"output\":10,\"cache\":{\"read\":0,\"write\":0}}}');
-             INSERT INTO session_message VALUES ('m3','s2','assistant',2,1792281602000,'{\"role\":\"assistant\",\"modelID\":\"gpt-6.1-sol\",\"providerID\":\"openai\",\"cost\":0,\"tokens\":{\"input\":10,\"output\":1,\"cache\":{\"read\":0,\"write\":0}}}');",
+             INSERT INTO session_message VALUES ('m3','s2','assistant',2,1792281602000,'{\"role\":\"assistant\",\"model\":{\"id\":\"gpt-6.1-sol\",\"providerID\":\"openai\"},\"cost\":0,\"tokens\":{\"input\":10,\"output\":1,\"cache\":{\"read\":0,\"write\":0}}}');
+             INSERT INTO session_message VALUES ('u1','s1','user',0,1792281600000,'{\"role\":\"user\"}');",
         )
         .unwrap();
         drop(c);
         let r = read_opencode(&[f], "2026-10-01T00:00:00Z".parse().unwrap());
         assert!(r.errors.is_empty(), "{:?}", r.errors);
-        assert_eq!(r.requests.len(), 2, "the fork copy is skipped");
+        assert_eq!(r.requests.len(), 2, "the fork copy and the user row are skipped");
+        assert_eq!(r.requests[1].model, "gpt-6.1-sol");
         assert_eq!(r.requests[0].tokens.cache_write, 20);
         assert_eq!(
             r.requests[0].project.as_deref(),

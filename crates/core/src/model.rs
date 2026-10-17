@@ -416,11 +416,14 @@ impl Inventory {
 
     /// Dollars over the window for pay-as-you-go lines only.
     pub fn total_usd(&self) -> f64 {
-        self.usage
+        let s: f64 = self
+            .usage
             .iter()
             .filter(|u| !matches!(u.credit, Credit::Subscription { .. }))
             .filter_map(|u| u.usd)
-            .sum()
+            .sum();
+        // an empty sum is -0.0 in Rust; show 0.00, not -0.00
+        s + 0.0
     }
 
     pub fn providers(&self) -> Vec<String> {

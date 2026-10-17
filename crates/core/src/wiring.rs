@@ -213,7 +213,7 @@ pub fn accounts_from(
         }
     }
     if let Some(o) = &f.organization {
-        a.organization = str_at(&file.tree, o);
+        a.organization = str_at(&file.tree, o).map(|v| hide_emails(&v));
     }
     if let Some(e) = &f.expires {
         if let Some(v) = get(&file.tree, e) {
@@ -261,6 +261,18 @@ pub fn accounts_from(
         return Vec::new();
     }
     vec![a]
+}
+
+/// An organization name may be generated from an address ("x@y.com's Organization"):
+/// keep the domain only.
+pub fn hide_emails(s: &str) -> String {
+    s.split(' ')
+        .map(|w| match w.rsplit_once('@') {
+            Some((local, rest)) if !local.is_empty() && rest.contains('.') => format!("…@{rest}"),
+            _ => w.to_string(),
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 /// Provider ids as the hosts write them → Billfold's provider ids.

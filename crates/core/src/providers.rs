@@ -134,7 +134,7 @@ impl Providers {
     }
 
     pub fn name_of<'a>(&'a self, id: &'a str) -> &'a str {
-        self.get(id).map(|p| p.name.as_str()).unwrap_or(id)
+        self.get(id).map(|p| p.name.as_str()).unwrap_or_else(|| display_id(id))
     }
 
     /// The provider a variable or config key name belongs to, by its documented names.
@@ -181,6 +181,22 @@ impl Providers {
                 .iter()
                 .any(|(i, re)| self.list[*i].id == p.id && re.is_match(value))
         }
+    }
+}
+
+/// A host's own account provider, with no sheet of its own (`cursor`, `opencode`, `zed`,
+/// `amp`, `devin`): its usual spelling.
+pub fn display_id(id: &str) -> &str {
+    match id {
+        "cursor" => "Cursor",
+        "opencode" => "OpenCode",
+        "zed" => "Zed",
+        "amp" => "Amp",
+        "devin" => "Devin",
+        "kilo" => "Kilo",
+        "cline" => "Cline",
+        "unknown" => "unknown provider",
+        _ => id,
     }
 }
 
