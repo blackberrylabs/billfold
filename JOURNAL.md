@@ -3,6 +3,33 @@
 
 ---
 
+## 2026-10-17 — premier passage réel : ce que la machine d'Alexandre a appris à Billfold
+
+- **Juste du premier coup** : les cinq hôtes présents (Claude Code, Claude Desktop, Cursor,
+  GitHub Copilot, OpenCode), deux clés dans un `.env` de projet (600, ignoré par git,
+  masquées), Cursor expiré, Claude Code à 99 % de cache (96 M lus, 218 requêtes ≈ 30 $
+  d'équivalent API, couverts par le plan).
+- **Faux, corrigés (commit 2)** : `$-0.00` (somme vide de flottants) ; `billingType` pris
+  pour le nom du plan — c'est un mode (abonnement ou clé) ; un nom d'organisation généré
+  depuis une adresse (`…@domaine` seul gardé) ; OpenCode « unknown » sur 1 400 requêtes :
+  la version courante écrit `data.model.id` / `data.model.providerID` (son `stats.ts` fait
+  foi), le lecteur suit les deux formes et saute les forks par date de création de session ;
+  « cursor » en minuscules → nom d'affichage.
+- **Faux, corrigés (commit 3)** : cinq « non tarifés » qui étaient des modèles **gratuits**
+  d'OpenCode Zen (`space-bunny-free`, `muse-spark-1.3-contributor-free`, `longcat-2.5-preview-
+  free`, `glm-5.3-flash-free`, `deepseek-v4.1-flash-free`). Nouvelle fiche
+  `providers/opencode.toml` : règle `pricing.free` (suffixe `-free`, `big-pickle`), source
+  opencode.ai/docs/zen (« Use `jev-1.13-free` instead of `jev-1.13` to use the limited-time
+  free model. ») ; ligne tarifée 0 avec la note `free model`, jamais « included in plan » ;
+  modèles payants au prix du fournisseur d'origine (« selling at cost »). Nouveau champ
+  `login_credit = "either"` : une connexion OAuth à Zen paie en crédits ou par OpenCode Go,
+  le disque ne dit pas lequel → crédit inconnu, avec la note. Le constat « non tarifé »
+  compte désormais les mêmes requêtes que la table (une requête à zéro jeton n'en changeait
+  le compte que d'un côté) et écrit ses jetons en `k`/`M`.
+- **Ouvert** : sur cette machine `~/.claude/.credentials.json` ne contient que `mcpOAuth`,
+  pas `claudeAiOauth` — le plan Claude Code n'est pas lisible là ; à voir si `oauthAccount`
+  dans `.claude.json` le porte (question posée, noms de champs seulement).
+
 ## 2026-10-17 — cœur, CLI, app : tout tient sur le faux HOME
 
 - **Fait** : `bbl-hostrules` 0.5.0 (trois formats, hôte par référence) ; 21 fiches hôtes et

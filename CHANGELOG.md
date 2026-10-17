@@ -28,9 +28,11 @@ read-only, no network, from sourced sheets.
   rows skipped), Goose `usage_ledger`, Aider's Markdown history (rounded counts), Cline and
   Roo task files, Cline session manifests, Copilot CLI session events (cumulative, cache
   buckets inside `inputTokens`), Zed threads (JSON or zstd), Amp threads.
-- 21 provider sheets (`providers/*.toml`, schema `docs/providers.md`): documented variable
+- 22 provider sheets (`providers/*.toml`, schema `docs/providers.md`): documented variable
   names, observed key shapes, usage pages, cache-write multipliers, long-context tiers,
-  DeepSeek peak hours, announced changes.
+  DeepSeek peak hours, announced changes, free models (OpenCode Zen's `-free` ids priced
+  0 with the note `free model`), and whether a login pays with credits or a plan
+  (`login_credit = "either"` keeps the credit unknown).
 - Keys: process environment, shell start-up files, `environment.d`, project `.env*` and
   `.envrc`, the hosts' own files, MCP configs, `~/.netrc`, `~/.aws/credentials`,
   `~/.cache/huggingface/token`, `llm` and Continue configs. Git state read from `.git/index`

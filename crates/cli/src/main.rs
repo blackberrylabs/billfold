@@ -387,6 +387,7 @@ fn meter(out: &mut impl Write, inv: &Inventory, host: Option<&str>, by: By) -> R
                 .map(|s| format!("{s:.0} %"))
                 .unwrap_or_else(|| "-".into()),
             match usd {
+                Some(_) if notes.iter().any(|n| n == "free model") => "free".to_string(),
                 Some(d) if *plan => format!("(${d:.2}) plan"),
                 Some(d) => format!("${d:.2}"),
                 None => "unpriced".into(),
@@ -399,10 +400,9 @@ fn meter(out: &mut impl Write, inv: &Inventory, host: Option<&str>, by: By) -> R
                 "", ""
             )?;
         }
-        for n in notes
-            .iter()
-            .filter(|n| !n.starts_with("included in plan") || n.contains(';'))
-        {
+        for n in notes.iter().filter(|n| {
+            (!n.starts_with("included in plan") || n.contains(';')) && n.as_str() != "free model"
+        }) {
             writeln!(out, "{:<52} {:>7} {n}", "", "")?;
         }
     }

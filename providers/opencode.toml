@@ -1,0 +1,37 @@
+# Billfold provider sheet. Read by the scan, never written. Every claim names its source.
+# OpenCode's own gateway ("OpenCode Zen" in the host, "OpenCode Console" on the web):
+# models are used as `opencode/<model-id>`; the index has no row for it, paid models are
+# sold at the first-party price ("selling at cost"), so the first-party row applies.
+
+id = "opencode"
+name = "OpenCode Zen"
+env_vars = ["OPENCODE_API_KEY"]
+config_names = ["opencode-api-key", "opencodeApiKey"]
+usage_url = "https://opencode.ai/console"
+login_credit = "either"
+id_prefixes = ["opencode/"]
+index_ids = []
+
+[source]
+kind = "documentation"
+url = "https://opencode.ai/docs/zen/"
+read_on = 2026-10-17
+quote = "Sign in to the console, add your billing details and credits, and copy your API key."
+note = "curl example `-H \"Authorization: Bearer $OPENCODE_API_KEY\"`; \"use the format `opencode/<model-id>`\"; \"Console uses pay-as-you-go pricing. You are charged per request and can add credits to your account.\" or \"For a subscription with included usage, see OpenCode Go.\" — which of the two an OAuth login in the host's credential table pays with is not written on disk"
+
+[pricing]
+note = "Paid models are sold at the first-party price (\"Pass along price drops by selling at cost, with markup only to cover processing fees.\"), so the index's first-party row applies; models with the `-free` suffix cost nothing for a limited time."
+[pricing.free]
+suffixes = ["-free"]
+models = ["big-pickle"]
+[pricing.free.source]
+kind = "documentation"
+url = "https://opencode.ai/docs/zen/"
+read_on = 2026-10-17
+quote = "Use `jev-1.13-free` instead of `jev-1.13` to use the limited-time free model."
+note = "the models table lists every `… Free` row at Free / Free (GLM-5.3-Flash Free, DeepSeek V4.1 Flash Free, Space Bunny Free, LongCat 2.5 Preview Free, Beam Free, LL Alpha Free, Exo Free, MiMo Free, Nemotron Free, Jev 1.13 Free); \"Big Pickle is a stealth model that's free on OpenCode for a limited time.\" — a free model may become paid at any date; the rule is by id, not by date"
+[pricing.source]
+kind = "documentation"
+url = "https://opencode.ai/docs/zen/"
+read_on = 2026-10-17
+quote = "Pass along price drops by selling at cost, with markup only to cover processing fees."

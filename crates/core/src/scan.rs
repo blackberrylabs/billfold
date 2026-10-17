@@ -97,6 +97,21 @@ pub fn scan_with(
     // ---- wiring and keys
     let (accounts, _loaded) = wiring::accounts(sheets, env, &present, opt.now, &mut inv.errors);
     inv.accounts = accounts;
+    // a provider whose login may pay with credits or with a plan: the store does not say
+    for a in &mut inv.accounts {
+        if matches!(a.credit, Credit::Subscription { plan: None })
+            && providers
+                .get(&a.provider)
+                .is_some_and(|p| p.login_credit.as_deref() == Some("either"))
+        {
+            a.credit = Credit::Unknown;
+            let n = "the login pays with credits or with a plan; the store does not say which";
+            a.note = Some(match a.note.take() {
+                Some(x) => format!("{x} {n}."),
+                None => format!("{n}."),
+            });
+        }
+    }
     inv.keys = keys::keys(sheets, providers, env, &present, &roots);
 
     // ---- meter
@@ -163,7 +178,7 @@ pub fn scan_with(
             .clone()
             .unwrap_or_else(|| credit_of(&inv.accounts, &host, provider_id.as_deref()));
         let price = prices.lookup(&r.model, provider, providers);
-        let (usd, mut note) = match price {
+        let (usd, mut note) = match &price {
             Some(p) => {
                 let priced = price_request(&r.tokens, &r.billing, p, provider, r.when);
                 (
@@ -177,7 +192,7 @@ pub fn scan_with(
             }
             None => (None, Some("model not in the price table".into())),
         };
-        if usd.is_none() && r.tokens.total() > 0 {
+        if usd.is_none() {
             unpriced
                 .entry((host.clone(), r.model.clone()))
                 .or_default()
@@ -192,7 +207,8 @@ pub fn scan_with(
                 e.1 += h;
             }
         }
-        if matches!(credit, Credit::Subscription { .. }) {
+        let free = price.as_ref().is_some_and(|p| p.tier == "free");
+        if matches!(credit, Credit::Subscription { .. }) && !free {
             note = Some(match note {
                 Some(n) => format!("included in plan; {n}"),
                 None => "included in plan".into(),
@@ -212,7 +228,10 @@ pub fn scan_with(
             host: host.clone(),
             host_name: host_name.clone(),
             model: r.model.clone(),
-            provider: price.map(|p| p.provider_id.clone()).or(provider_id.clone()),
+            provider: price
+                .as_ref()
+                .map(|p| p.provider_id.clone())
+                .or(provider_id.clone()),
             project: r.project.clone(),
             day,
             tokens: Tokens::default(),
@@ -590,6 +609,9 @@ fn findings(
     }
     // unpriced models
     for ((host, model), t) in unpriced {
+        if t.total() == 0 {
+            continue;
+        }
         out.push(Finding {
             kind: Kind::Unpriced,
             id: format!("unpriced/{host}/{model}"),
@@ -597,7 +619,7 @@ fn findings(
             host_name: Some(host_name(&host)),
             title: format!("{model}: not in the price table"),
             subject: format!("{} · {model}", host_name(&host)),
-            detail: format!("{} tokens in {} request(s) counted, no dollar equivalent ({} snapshot of {})", t.total(), t.requests, inv.prices.name, inv.prices.as_of),
+            detail: format!("{} tokens in {} request(s) counted, no dollar equivalent ({} snapshot of {})", crate::report::human(t.total()), t.requests, inv.prices.name, inv.prices.as_of),
             path: None,
             line: None,
             hint: Some("the model id is as the host wrote it; a newer Billfold or a newer snapshot of the index may know it".into()),

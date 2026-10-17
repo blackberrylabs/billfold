@@ -162,7 +162,28 @@ impl PriceTable {
         model: &str,
         provider: Option<&Provider>,
         providers: &Providers,
-    ) -> Option<&ModelPrice> {
+    ) -> Option<ModelPrice> {
+        // a model the provider serves for nothing, by its own sheet
+        if let Some(p) = provider {
+            if let Some(free) = &p.pricing.free {
+                let bare = candidates(model, Some(p));
+                if bare.iter().any(|c| free.matches(c)) {
+                    return Some(ModelPrice {
+                        id: format!("{}:{}", p.id, bare.get(1).unwrap_or(&bare[0])),
+                        provider_id: p.id.clone(),
+                        api_model: Some(model.to_string()),
+                        base_model: None,
+                        input: 0.0,
+                        output: 0.0,
+                        cached_input: Some(0.0),
+                        tier: "free".into(),
+                        discount: None,
+                        verified_at: None,
+                        source_url: free.source.as_ref().and_then(|s| s.url.clone()),
+                    });
+                }
+            }
+        }
         let wanted_ids: Vec<&str> = provider
             .map(|p| p.index_ids.iter().map(String::as_str).collect())
             .unwrap_or_default();
@@ -190,12 +211,12 @@ impl PriceTable {
         for key in candidates(model, provider) {
             if let Some(c) = self.by_api.get(&key) {
                 if let Some(p) = pick(c) {
-                    return Some(p);
+                    return Some(p.clone());
                 }
             }
             if let Some(c) = self.by_base.get(&key) {
                 if let Some(p) = pick(c) {
-                    return Some(p);
+                    return Some(p.clone());
                 }
             }
         }
@@ -366,6 +387,9 @@ pub fn price_request(
             notes.push(format!("promotional price (−{:.0} %)", d * 100.0));
         }
     }
+    if price.tier == "free" {
+        notes.push("free model".into());
+    }
     Priced { usd, notes }
 }
 
@@ -463,6 +487,18 @@ mod tests {
             "openai"
         );
         assert!(t.lookup("made-up-model-9000", None, &ps).is_none());
+        // OpenCode Zen: a `-free` model is priced 0 by the sheet, a paid one at the
+        // first-party price
+        let zen = ps.get("opencode");
+        let free = t.lookup("opencode/space-bunny-free", zen, &ps).unwrap();
+        assert_eq!(
+            (free.tier.as_str(), free.input, free.output),
+            ("free", 0.0, 0.0)
+        );
+        assert_eq!(free.provider_id, "opencode");
+        let paid = t.lookup("claude-sonnet-5-5", zen, &ps).unwrap();
+        assert_eq!(paid.provider_id, "anthropic");
+        assert!(t.lookup("space-bunny-free", None, &ps).is_none());
     }
 
     #[test]
@@ -484,7 +520,7 @@ mod tests {
             tier: None,
             geo: None,
         };
-        let r = price_request(&tokens, &billing, p, anthropic, None);
+        let r = price_request(&tokens, &billing, &p, anthropic, None);
         // 2 + 1 + 0.1 + 2 × 1.25
         assert!(
             (r.usd - 5.6).abs() < 1e-9,
@@ -498,7 +534,7 @@ mod tests {
             tier: None,
             geo: None,
         };
-        let r = price_request(&tokens, &billing_1h, p, anthropic, None);
+        let r = price_request(&tokens, &billing_1h, &p, anthropic, None);
         assert!((r.usd - 7.1).abs() < 1e-9, "{}", r.usd); // 2 + 1 + 0.1 + 2 × 2
                                                           // Haiku 5.5 above 100K prompt tokens pays the higher tier
         let h = t.lookup("claude-haiku-5-5", anthropic, &ps).unwrap();
@@ -510,7 +546,7 @@ mod tests {
             reasoning: 0,
             requests: 1,
         };
-        let r = price_request(&big, &billing, h, anthropic, None);
+        let r = price_request(&big, &billing, &h, anthropic, None);
         assert!(r.notes.iter().any(|n| n.contains("long-context")));
         assert!((r.usd - (150_000.0 * 0.5 + 1_000.0 * 2.5) / 1e6).abs() < 1e-9);
         // DeepSeek at peak hours is doubled
@@ -528,8 +564,8 @@ mod tests {
         };
         let peak = "2026-10-14T07:30:00Z".parse::<DateTime<Utc>>().unwrap(); // Wednesday
         let off = "2026-10-14T20:30:00Z".parse::<DateTime<Utc>>().unwrap();
-        let rp = price_request(&small, &billing, d, ps.get("deepseek"), Some(peak));
-        let ro = price_request(&small, &billing, d, ps.get("deepseek"), Some(off));
+        let rp = price_request(&small, &billing, &d, ps.get("deepseek"), Some(peak));
+        let ro = price_request(&small, &billing, &d, ps.get("deepseek"), Some(off));
         assert!((rp.usd - 2.0 * ro.usd).abs() < 1e-9);
     }
 }

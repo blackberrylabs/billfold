@@ -45,7 +45,8 @@ fn read_opencode_one(f: &Path, since: DateTime<Utc>) -> Result<(Vec<Request>, u6
         .ok_or("no message table")?;
     // sessions: directory, and for a fork the session's own creation time (rows older than
     // it were copied from the parent — OpenCode's own stats apply the same rule)
-    let mut sessions: std::collections::HashMap<String, (Option<String>, Option<i64>)> = Default::default();
+    let mut sessions: std::collections::HashMap<String, (Option<String>, Option<i64>)> =
+        Default::default();
     for st in ["session_v2", "session"] {
         let q = format!("SELECT id, directory, fork_session_id, time_created FROM {st}");
         if let Ok(mut s) = conn.prepare(&q) {
@@ -64,7 +65,9 @@ fn read_opencode_one(f: &Path, since: DateTime<Utc>) -> Result<(Vec<Request>, u6
             break;
         }
     }
-    let has_type = conn.prepare(&format!("SELECT type FROM {table} LIMIT 1")).is_ok();
+    let has_type = conn
+        .prepare(&format!("SELECT type FROM {table} LIMIT 1"))
+        .is_ok();
     let sql = if has_type {
         format!("SELECT session_id, time_created, data, type FROM {table}")
     } else {
@@ -72,7 +75,14 @@ fn read_opencode_one(f: &Path, since: DateTime<Utc>) -> Result<(Vec<Request>, u6
     };
     let mut stmt = conn.prepare(&sql).map_err(|e| e.to_string())?;
     let rows = stmt
-        .query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, Option<i64>>(1).ok().flatten(), r.get::<_, String>(2)?, r.get::<_, String>(3).unwrap_or_default())))
+        .query_map([], |r| {
+            Ok((
+                r.get::<_, String>(0)?,
+                r.get::<_, Option<i64>>(1).ok().flatten(),
+                r.get::<_, String>(2)?,
+                r.get::<_, String>(3).unwrap_or_default(),
+            ))
+        })
         .map_err(|e| e.to_string())?;
     let mut reqs = Vec::new();
     let mut n = 0u64;
@@ -80,23 +90,34 @@ fn read_opencode_one(f: &Path, since: DateTime<Utc>) -> Result<(Vec<Request>, u6
         if kind != "assistant" {
             continue;
         }
-        let Ok(v) = serde_json::from_str::<Value>(&data) else { continue };
+        let Ok(v) = serde_json::from_str::<Value>(&data) else {
+            continue;
+        };
         if v.get("role").and_then(Value::as_str).unwrap_or("assistant") != "assistant" {
             continue;
         }
-        let Some(t) = v.get("tokens").filter(|x| x.is_object()) else { continue };
+        let Some(t) = v.get("tokens").filter(|x| x.is_object()) else {
+            continue;
+        };
         let (dir, fork_created) = sessions.get(&session).cloned().unwrap_or((None, None));
         if let (Some(fc), Some(c)) = (fork_created, created) {
             if c < fc {
                 continue; // copied from the parent session by a fork
             }
         }
-        let when = ms(v.get("time").and_then(|x| x.get("created")).and_then(Value::as_i64)).or_else(|| ms(created));
+        let when = ms(v
+            .get("time")
+            .and_then(|x| x.get("created"))
+            .and_then(Value::as_i64))
+        .or_else(|| ms(created));
         if !in_window(when, since) {
             continue;
         }
         let provider = str_at(&v, "providerID").or_else(|| str_at(&v, "model.providerID"));
-        let model = str_at(&v, "modelID").or_else(|| str_at(&v, "model.id")).or_else(|| str_at(&v, "model.modelID")).unwrap_or_else(|| "unknown".into());
+        let model = str_at(&v, "modelID")
+            .or_else(|| str_at(&v, "model.id"))
+            .or_else(|| str_at(&v, "model.modelID"))
+            .unwrap_or_else(|| "unknown".into());
         let cost = v.get("cost").and_then(Value::as_f64);
         n += 1;
         reqs.push(Request {
@@ -115,7 +136,11 @@ fn read_opencode_one(f: &Path, since: DateTime<Utc>) -> Result<(Vec<Request>, u6
             host_cost_usd: cost,
             credit_hint: match (provider.as_deref(), cost) {
                 // the ChatGPT-plan plugin writes no cost: tokens are included in the plan
-                (Some("openai"), Some(c)) if c == 0.0 && t.get("input").and_then(Value::as_u64).unwrap_or(0) > 0 => Some(Credit::Subscription { plan: None }),
+                (Some("openai"), Some(c))
+                    if c == 0.0 && t.get("input").and_then(Value::as_u64).unwrap_or(0) > 0 =>
+                {
+                    Some(Credit::Subscription { plan: None })
+                }
                 _ => None,
             },
             provider_hint: provider.map(|p| crate::wiring::normalise_provider(&p)),
@@ -321,7 +346,11 @@ mod tests {
         drop(c);
         let r = read_opencode(&[f], "2026-10-01T00:00:00Z".parse().unwrap());
         assert!(r.errors.is_empty(), "{:?}", r.errors);
-        assert_eq!(r.requests.len(), 2, "the fork copy and the user row are skipped");
+        assert_eq!(
+            r.requests.len(),
+            2,
+            "the fork copy and the user row are skipped"
+        );
         assert_eq!(r.requests[1].model, "gpt-6.1-sol");
         assert_eq!(r.requests[0].tokens.cache_write, 20);
         assert_eq!(

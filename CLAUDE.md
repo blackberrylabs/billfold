@@ -44,7 +44,7 @@ verifier par `git log --format='%an <%ae>'` avant tout push.
 ## Reperes
 
 - `crates/core/src/{model,sheets,providers,prices,wiring,keys,gitstat,scan,report,util}.rs`,
-  `meter/<hote>.rs` (un lecteur par format) ; `hosts/*.toml` (21), `providers/*.toml` (21),
+  `meter/<hote>.rs` (un lecteur par format) ; `hosts/*.toml` (21), `providers/*.toml` (22),
   schemas `docs/hosts.md` et `docs/providers.md`.
 - Tests : `tests/promises.rs` (rien d'ecrit, rien de reseau, cle plantee jamais sortie,
   rapport conforme), `tests/scan.rs` (faux HOME, un constat de chaque sorte ;

@@ -142,6 +142,12 @@ fn fixture(home: &Path) {
             rusqlite::params![t, format!(r#"{{"role":"assistant","modelID":"deepseek-v4-pro","providerID":"deepseek","cost":9.99,"tokens":{{"input":1000000,"output":100000,"reasoning":0,"cache":{{"read":0,"write":0}}}},"time":{{"created":{t}}}}}"#)],
         )
         .unwrap();
+        // a free model of OpenCode's own gateway, in the current nested shape
+        c.execute(
+            "INSERT INTO session_message VALUES ('m2','s1','assistant',2,?1,?2)",
+            rusqlite::params![t, format!(r#"{{"role":"assistant","model":{{"id":"space-bunny-free","providerID":"opencode"}},"cost":0,"tokens":{{"input":5000,"output":500,"reasoning":0,"cache":{{"read":0,"write":0}}}},"time":{{"created":{t}}}}}"#)],
+        )
+        .unwrap();
     }
     write(
         &home.join(".config/opencode/opencode.json"),
@@ -304,8 +310,25 @@ fn the_fixture_home_yields_every_kind_once_and_counts_right() {
         .unwrap()
         .contains("included in plan"));
     // DeepSeek on OpenCode is pay-as-you-go: 1M in + 100k out at off-peak 0.66 / 1.98 (×2 at peak)
-    let ds = inv.usage.iter().find(|u| u.host == "opencode").unwrap();
+    let ds = inv
+        .usage
+        .iter()
+        .find(|u| u.host == "opencode" && u.model == "deepseek-v4-pro")
+        .unwrap();
     assert_eq!(ds.credit, Credit::ApiKey);
+    // a `-free` model of OpenCode's gateway is priced 0, not unpriced
+    let free = inv
+        .usage
+        .iter()
+        .find(|u| u.host == "opencode" && u.model == "space-bunny-free")
+        .unwrap();
+    assert_eq!(free.usd, Some(0.0));
+    assert_eq!(free.provider.as_deref(), Some("opencode"));
+    assert_eq!(free.pricing_note.as_deref(), Some("free model"));
+    assert!(!inv
+        .findings
+        .iter()
+        .any(|f| f.kind == Kind::Unpriced && f.title.contains("space-bunny")));
     let usd = ds.usd.unwrap();
     assert!(
         (usd - 0.858).abs() < 1e-6 || (usd - 1.716).abs() < 1e-6,

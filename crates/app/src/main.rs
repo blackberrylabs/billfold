@@ -942,6 +942,11 @@ impl App {
                 (None, _, _) => container(pill(s.t("meter.unpriced", &[]), alert(self.dark)))
                     .width(w(96.0))
                     .into(),
+                (Some(_), _, _) if notes.iter().any(|n| n == "free model") => {
+                    container(pill(s.t("meter.free", &[]), bbl_ui::palette::hex(0x2f6feb)))
+                        .width(w(96.0))
+                        .into()
+                }
                 (Some(d), true, _) => row![
                     pill(s.t("meter.plan", &[]), bbl_ui::palette::hex(0x2f6feb)),
                     text(format!("(${d:.2})")).size(12)

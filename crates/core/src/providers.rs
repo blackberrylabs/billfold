@@ -67,8 +67,28 @@ pub struct Pricing {
     pub off_peak: Option<OffPeak>,
     #[serde(default)]
     pub announced: Vec<Announced>,
+    /// Model ids the provider serves for nothing (the index does not list $0 rows).
+    pub free: Option<Free>,
     pub source: Option<Source>,
     pub note: Option<String>,
+}
+
+/// Models that cost nothing, by id suffix (`-free`) or exact id.
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+pub struct Free {
+    #[serde(default)]
+    pub suffixes: Vec<String>,
+    #[serde(default)]
+    pub models: Vec<String>,
+    pub source: Option<Source>,
+}
+
+impl Free {
+    pub fn matches(&self, model: &str) -> bool {
+        let m = model.to_lowercase();
+        self.suffixes.iter().any(|s| m.ends_with(&s.to_lowercase()))
+            || self.models.iter().any(|x| x.to_lowercase() == m)
+    }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -87,6 +107,9 @@ pub struct Provider {
     pub shapes: Vec<Shape>,
     /// Where the provider shows usage and billing (an `open-url` action, never fetched).
     pub usage_url: Option<String>,
+    /// What an OAuth login to this provider pays with when the host's store does not say:
+    /// `subscription` (the default) or `either` (credits or a plan — kept unknown).
+    pub login_credit: Option<String>,
     /// Model-id prefixes to strip before matching the price table (`anthropic.`, `us.`).
     #[serde(default)]
     pub id_prefixes: Vec<String>,
@@ -134,7 +157,9 @@ impl Providers {
     }
 
     pub fn name_of<'a>(&'a self, id: &'a str) -> &'a str {
-        self.get(id).map(|p| p.name.as_str()).unwrap_or_else(|| display_id(id))
+        self.get(id)
+            .map(|p| p.name.as_str())
+            .unwrap_or_else(|| display_id(id))
     }
 
     /// The provider a variable or config key name belongs to, by its documented names.
@@ -278,6 +303,10 @@ pub const EMBEDDED: &[(&str, &str)] = &[
     ),
     ("aws.toml", include_str!("../../../providers/aws.toml")),
     ("azure.toml", include_str!("../../../providers/azure.toml")),
+    (
+        "opencode.toml",
+        include_str!("../../../providers/opencode.toml"),
+    ),
 ];
 
 pub fn embedded() -> Providers {

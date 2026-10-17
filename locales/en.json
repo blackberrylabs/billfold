@@ -80,6 +80,7 @@
   "meter.col.cache_r": "cache r",
   "meter.col.cache": "cache",
   "meter.col.usd": "API-equiv.",
+  "meter.free": "free",
   "meter.plan": "plan",
   "meter.unpriced": "unpriced",
   "meter.host_cost": "host's own figure {usd}",
