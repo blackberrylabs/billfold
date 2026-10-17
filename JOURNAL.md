@@ -3,6 +3,20 @@
 
 ---
 
+## 2026-10-17 — release 0.1.0
+
+- **Tag** `v0.1.0` sur `aea13ae` (quatre commits après le premier). `packaging/build.sh`
+  lancé par Alexandre : `.deb` 7,6 Mo, `.rpm` 8,2 Mo, AppImage 10,5 Mo, `SHA256SUMS` ;
+  `appimagetool` repris de Permitt, aucun téléchargement.
+- **Vérification depuis l'extérieur** : le `.deb` ouvert sans être installé (`ar x`) —
+  deux binaires, `.desktop`, sept icônes, README et copyright, dépendances déclarées ; le
+  binaire CLI identique dans le `.deb` et l'AppImage ; `billfold --version` = 0.1.0 ; le
+  paquet lancé sur un Ubuntu 22.04 vierge : la CLI tourne (glibc 2.34), l'app réclame
+  glibc 2.39 — limite notée au CHANGELOG, même situation que les modules frères construits
+  sur 24.04.
+- **Reste** : comparaison du paquet avec `target/debug` sur la machine d'Alexandre, puis
+  push et release GitHub (son accord).
+
 ## 2026-10-17 — premier passage réel : ce que la machine d'Alexandre a appris à Billfold
 
 - **Juste du premier coup** : les cinq hôtes présents (Claude Code, Claude Desktop, Cursor,

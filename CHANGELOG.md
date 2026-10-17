@@ -44,3 +44,8 @@ read-only, no network, from sourced sheets.
 
 `keys`, `tokens_30d`, `usd_30d`, `findings` (the tower takes four; the provider count is a
 note).
+
+### Packaging
+
+`.deb`, `.rpm` and AppImage (x86_64) from `packaging/build.sh`, with `SHA256SUMS`. Built on
+Ubuntu 24.04: the app needs glibc 2.39 (the `.deb` declares it), the command line only 2.34.
