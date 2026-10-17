@@ -516,7 +516,9 @@ mod tests {
             )),
             "sk-proj-…bbbb"
         );
-        assert_eq!(mask_key("sk-0123456789abcdef0123456789abcdef"), "sk-…cdef");
+        // assembled at run time: a source file never holds a string of a provider's exact shape
+        let d = format!("sk-{0}{0}", "0123456789abcdef");
+        assert_eq!(mask_key(&d), "sk-…cdef");
         let g = "gsk_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOP";
         assert_eq!(mask_key(g), "gsk_…MNOP");
     }
