@@ -3,7 +3,22 @@
 
 ---
 
-## 2026-10-17 — release 0.1.0
+## 2026-10-18 — finitions après la 0.1.0
+
+- **Publiée la veille** : release `v0.1.0` sur GitHub avec ses quatre fichiers (`.deb`,
+  `.rpm`, AppImage, `SHA256SUMS`), lue par la tour 0.3.0 ; le « Reste » de l'entrée du 17
+  est fait. Le PLAN, resté aux étapes 5 et 6 non cochées, est remis à jour.
+- **Qwen Code corrigé** : la fiche annonçait 30 jours de rétention sur les chats
+  (`general.cleanupPeriodDays`), donc un constat « bientôt supprimé » à tort. La doc de Qwen
+  Code, relue ce jour, ne lui donne que les sauvegardes de `/rewind` : « Days to retain
+  `~/.qwen/file-history/` session backups used by `/rewind`. » La recherche de Lastrun
+  l'avait déjà relevé. Rétention retirée ; test `an_old_qwen_chat_is_not_announced_as_pruned`,
+  vu échouer avant la correction (`pruning-soon/qwen-code`) puis passer. Proposé : la
+  correction part avec la prochaine version, sans 0.1.1 pour ce seul constat de rang « bon à
+  savoir » (à confirmer par Alexandre).
+- **Capture du README** : l'app sur le faux HOME des tests (`write_fixture`), onglet Wiring,
+  le constat le plus grave sélectionné ; comptes, clés et chemins inventés, dit sous l'image.
+  Règle de la promotion : aucun écran tiré de la machine d'Alexandre.
 
 - **Push bloqué par GitHub** (push protection) : la clé DeepSeek *factice* du faux HOME de
   test (`sk-` + 32 hexadécimaux, la forme exacte du fournisseur) a été prise pour une vraie.

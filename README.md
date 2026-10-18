@@ -3,6 +3,10 @@
 **What this machine spends on AI — the accounts it is wired to, the keys it holds, the
 tokens it burned.**
 
+![Billfold, the Wiring view: the account each host is logged into and who pays, with every finding most serious first](docs/screenshots/light.png)
+
+*Demo data from the test suite: the accounts, keys and paths are invented.*
+
 A developer or a vibe coder accumulates providers (Anthropic, OpenAI, Google, DeepSeek,
 Mistral, OpenRouter…), accounts (a Claude Max plan, a ChatGPT plan, an API key here and
 there) and tools that spend them (Claude Code, Codex, Cursor, Gemini CLI, OpenCode, Aider,
@@ -10,8 +14,8 @@ Cline…). Three questions have no simple answer on the machine itself: **what a
 to**, **where are my keys and who can see them**, **how much did I consume**. Each host
 stores its login its own way — JSON in clear, SQLite, the system keyring —, keys end up in
 `.bashrc`, in a `.env` that git tracks, in a tool's `secrets.json`; and eleven hosts write
-their token usage to disk in eleven formats, with their own duplicates, then prune it after
-thirty days.
+their token usage to disk in eleven formats, with their own duplicates, and some of them
+prune it after thirty days.
 
 Billfold reads all of that in place and shows it in three views — **Wiring**, **Keys**,
 **Meter** — with the findings that matter: a key in a git-tracked file, the same key in

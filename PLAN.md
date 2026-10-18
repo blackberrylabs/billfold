@@ -33,17 +33,23 @@
 - [x] App iced sur bbl-ui : trois onglets, constats, détail, `--select`, `--tab`, `--since`,
       EN/FR
 
-## Étape 5. Passage réel — à faire
-- [ ] Relevé d'existence sur la machine d'Alexandre (commande donnée), puis `billfold`,
+## Étape 5. Passage réel — fait le 2026-10-17
+- [x] Relevé d'existence sur la machine d'Alexandre (commande donnée), puis `billfold`,
       `billfold wiring`, `billfold keys`, `billfold meter`
-- [ ] Corrections d'après le réel
+- [x] Corrections d'après le réel (commits 2 à 4)
 
-## Étape 6. Release 0.1.0 — sur accord
-- [ ] Instantané de l'index du jour (as_of du build 14:15), `bbl-hostrules` v0.5.0 poussé et
+## Étape 6. Release 0.1.0 — publiée le 2026-10-17
+- [x] Instantané de l'index du jour (as_of du build 14:15), `bbl-hostrules` v0.5.0 poussé et
       tagué d'abord
-- [ ] Paquets (.deb, .rpm, AppImage), tag, release vérifiée depuis l'extérieur
-- [ ] `modules/billfold.toml` dans la tour (0.3.0), docs de la famille, profil de
+- [x] Paquets (.deb, .rpm, AppImage), tag, release vérifiée depuis l'extérieur
+- [x] `modules/billfold.toml` dans la tour (0.3.0), docs de la famille, profil de
       l'organisation, `00_moi`
+
+## Étape 7. Finitions — 2026-10-18
+- [x] Image de partage `assets/social-preview.png`
+- [x] Capture en tête du README, prise sur le faux HOME des tests (rien de personnel)
+- [x] Qwen Code : plus de rétention annoncée sur les chats (CHANGELOG, Unreleased)
+- [ ] Push (Alexandre), puis l'image de partage déposée dans Settings, Social preview
 
 ## Plus tard (0.2)
 - Trousseau par D-Bus (`SearchItems` + étiquettes, jamais `GetSecret`) après essai réel
