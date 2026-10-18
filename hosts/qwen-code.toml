@@ -48,8 +48,8 @@ scope = "user"
 format = "jsonl"
 kind = "usage"
 path.any = "~/.qwen/projects/*/chats/*.jsonl"
-usage = { reader = "qwen-jsonl", retention_days = 30, retention_setting = "general.cleanupPeriodDays", retention_file = "~/.qwen/settings.json" }
-note = "type:\"assistant\" records carry usageMetadata.{promptTokenCount,candidatesTokenCount,cachedContentTokenCount,thoughtsTokenCount,totalTokenCount}, model, timestamp and executionContext.authType — the account type is in the log. Retention documented for subagent transcripts and debug logs; chat files themselves not documented as pruned."
+usage = { reader = "qwen-jsonl" }
+note = "type:\"assistant\" records carry usageMetadata.{promptTokenCount,candidatesTokenCount,cachedContentTokenCount,thoughtsTokenCount,totalTokenCount}, model, timestamp and executionContext.authType — the account type is in the log. No retention on chat files: `general.cleanupPeriodDays` (default 30) covers only the /rewind backups, docs/users/configuration/settings.md read 2026-10-18: \"Days to retain `~/.qwen/file-history/` session backups used by `/rewind`.\""
 [locations.source]
 kind = "source-code"
 url = "https://github.com/QwenLM/qwen-code/blob/main/packages/core/src/services/chatRecordingService.ts"

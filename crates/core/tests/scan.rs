@@ -349,6 +349,42 @@ fn the_fixture_home_yields_every_kind_once_and_counts_right() {
     assert!(!report.contains("SECRET"));
 }
 
+/// Qwen Code keeps its chat files: `general.cleanupPeriodDays` only prunes the /rewind
+/// backups, so an old chat must never be announced as about to be deleted.
+#[test]
+fn an_old_qwen_chat_is_not_announced_as_pruned() {
+    let tmp = tempfile::tempdir().unwrap();
+    let home = tmp.path();
+    chmod(home, 0o700);
+    let ts = (chrono::Utc::now() - chrono::Duration::days(25))
+        .to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+    let chat = home.join(".qwen/projects/-home-x-proj/chats/s1.jsonl");
+    write(
+        &chat,
+        &format!(
+            r#"{{"type":"assistant","timestamp":"{ts}","sessionId":"s1","model":"qwen3-coder","usageMetadata":{{"promptTokenCount":300,"candidatesTokenCount":20,"totalTokenCount":320}},"executionContext":{{"modelId":"qwen3-coder","authType":"openai"}}}}"#
+        ),
+    );
+    age(&chat, 25);
+    let env = Env::fixture(home, Os::Linux);
+    let inv = scan_with(
+        &env,
+        &billfold_core::sheets::embedded(),
+        &billfold_core::providers::embedded(),
+        billfold_core::prices::PriceTable::embedded(),
+        &Options::default(),
+    );
+    assert!(
+        inv.hosts.iter().any(|h| h.id == "qwen-code" && h.present),
+        "qwen-code not present"
+    );
+    assert!(
+        !inv.findings.iter().any(|f| f.kind == Kind::PruningSoon),
+        "{:?}",
+        inv.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
+    );
+}
+
 /// `BILLFOLD_FIXTURE_OUT=/some/dir cargo test -p billfold-core --test scan write_fixture`
 /// writes the fixture home there, for looking at the CLI and the app by hand.
 #[test]

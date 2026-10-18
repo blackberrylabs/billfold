@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Qwen Code: an old chat file is no longer announced as about to be pruned. Its
+  `general.cleanupPeriodDays` only covers the `/rewind` backups in `~/.qwen/file-history/`,
+  so the host sheet now gives the chats no retention (test
+  `an_old_qwen_chat_is_not_announced_as_pruned`).
+
 ## [0.1.0] — 2026-10-17
 
 First release: the accounts a machine is wired to, the keys it holds, the tokens it burned —
